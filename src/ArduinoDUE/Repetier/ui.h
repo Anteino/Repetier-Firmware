@@ -72,6 +72,7 @@
 #define UI_ACTION_HEATED_BED_DOWN      111
 #define UI_ACTION_FAN_UP               112
 #define UI_ACTION_FAN_DOWN             113
+#define UI_ACTION_500XL_TEST           139
 
 #define UI_ACTION_DUMMY 10000
 #define UI_ACTION_BACK                  1000

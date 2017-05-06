@@ -98,7 +98,7 @@
 #define LANGUAGE_FI_ID 11
 
 #define NUM_LANGUAGES_KNOWN 12
-#define NUM_TRANSLATED_WORDS 267
+#define NUM_TRANSLATED_WORDS 268
 
 // For selectable translations we refer to each text by a id which gets
 // defined here. The list starts at 0 and defines the position in the
@@ -372,7 +372,8 @@
 #define UI_TEXT_X_OFFSET_ID 263
 #define UI_TEXT_Y_OFFSET_ID 264
 #define UI_TEXT_Z_OFFSET_ID 265
-#define UI_TEXT_DBG_ENDSTOP_ID 266 //     "EndStop:%dp"
+#define UI_TEXT_500XL_TEST_ID 266
+#define UI_TEXT_DBG_ENDSTOP_ID 267 //     "EndStop:%dp"
 
 // Universal definitions
 
@@ -672,6 +673,7 @@
 #define UI_TEXT_Y_OFFSET_EN "Set Y offset:%T1mm"
 #define UI_TEXT_Z_OFFSET_EN "Set Z offset:%T2mm"
 
+#define UI_TEXT_500XL_TEST_EN "500XL Test"
 
 
 // *************** German translation ****************

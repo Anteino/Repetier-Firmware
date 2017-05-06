@@ -3591,6 +3591,11 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
         case UI_ACTION_TEMP_DEFECT:
             Printer::setAnyTempsensorDefect();
             break;
+		  case UI_ACTION_500XL_TEST:
+			  if (!allowMoves) return UI_ACTION_500XL_TEST;
+			  // HOME Y
+			  GCode::executeFString(PSTR("G28 Y\n"));
+			  break;
         case UI_ACTION_LANGUAGE_EN:
         case UI_ACTION_LANGUAGE_DE:
         case UI_ACTION_LANGUAGE_NL:
