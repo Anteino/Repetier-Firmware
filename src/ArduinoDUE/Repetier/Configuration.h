@@ -463,9 +463,9 @@ M140 command, after a given temperature is reached. */
 /** auto-retract converts pure extrusion moves into retractions. Beware that
  simple extrusion e.g. over Repetier-Host will then not work! */
 #define AUTORETRACT_ENABLED 0
-#define RETRACTION_LENGTH 3
+#define RETRACTION_LENGTH 3 // 500XL MME - UNITS??
 #define RETRACTION_LONG_LENGTH 13
-#define RETRACTION_SPEED 20
+#define RETRACTION_SPEED 20 // 500XL MME - UNITS??
 #define RETRACTION_Z_LIFT 0
 #define RETRACTION_UNDO_EXTRA_LENGTH 0
 #define RETRACTION_UNDO_EXTRA_LONG_LENGTH 0
@@ -475,14 +475,14 @@ M140 command, after a given temperature is reached. */
 If you have a lcd display, you can do a filament switch with M600.
 It will change the current extruders filament and temperature must already be high enough.
 */
-#define FILAMENTCHANGE_X_POS 100
-#define FILAMENTCHANGE_Y_POS 300
-#define FILAMENTCHANGE_Z_ADD 1
+#define FILAMENTCHANGE_X_POS 100 // 500XL MME - !
+#define FILAMENTCHANGE_Y_POS 300 // 500XL MME - !
+#define FILAMENTCHANGE_Z_ADD 1 // 500XL MME - !
 /** Does a homing procedure after a filament change. This is good in case
 you moved the extruder while changing filament during print.
 0 = no homing, 1 = xy homing, 2 = xyz homing
 */
-#define FILAMENTCHANGE_REHOME 1
+#define FILAMENTCHANGE_REHOME 1 // 500XL MME - TEST, SHOULD BE YX HOMING
 /** Will first retract short distance, go to change position and then retract longretract.
 Retractions speeds are taken from RETRACTION_SPEED and RETRACTION_UNDO_SPEED
 */
@@ -662,7 +662,7 @@ Value is used for all generic tables created. */
 /** \brief Set true if you have a heated bed connected to your board, false if not */
 #define HAVE_HEATED_BED true
 
-#define HEATED_BED_MAX_TEMP 100
+#define HEATED_BED_MAX_TEMP 110
 /** Skip M190 wait, if heated bed is already within x degrees. Fixed numbers only, 0 = off. */
 #define SKIP_M190_IF_WITHIN 1
 
@@ -781,7 +781,7 @@ PRINTER_MODE_CNC 2
 use a mechanical endstop connected with GND. Set value to false for no pull-up
 on this endstop.
 */
-#define ENDSTOP_PULLUP false // ?????
+#define ENDSTOP_PULLUP false // 500XL MME - What is pullup in this case? Why false?
 #define ENDSTOP_INVERTING false
 
 #define ENDSTOP_PULLUP_X_MIN ENDSTOP_PULLUP
@@ -1045,9 +1045,9 @@ Mega. Used only for nonlinear systems like delta or tuga. */
  * first a z home to get some reference, then raise to ZHOME_HEAT_HEIGHT do xy homing and then after
  * heating to minimum ZHOME_MIN_TEMPERATURE will z home again for correct height.
  * */
-#define HOMING_ORDER HOME_ORDER_YXZ
+#define HOMING_ORDER HOME_ORDER_YXZ // 500XL MME - Why isn't this used in the LCD menu?
 // Used for homing order HOME_ORDER_ZXYTZ
-#define ZHOME_MIN_TEMPERATURE 0
+#define ZHOME_MIN_TEMPERATURE 50
 // needs to heat all extruders (1) or only current extruder (0)
 #define ZHOME_HEAT_ALL 1
 // Z-height for heating extruder during homing
@@ -1067,7 +1067,7 @@ own weight, so this is nearly ever needed. */
 #define Y_BACKLASH 0
 
 /** Comment this to disable ramp acceleration */
-#define RAMP_ACCELERATION 1
+#define RAMP_ACCELERATION 1 // 500XL MME - What is ramp acceleration?
 
 /** If your stepper needs a longer high signal then given, you can add a delay here.
 The delay is realized as a simple loop wasting time, which is not available for other
@@ -1157,7 +1157,7 @@ Corner can be printed with full speed of 50 mm/s
 
 Overridden if EEPROM activated.
 */
-#define MAX_JERK 4.0
+#define MAX_JERK 4.0 // 500XL MME - Test!
 #define MAX_ZJERK 0.3
 
 /** \brief Number of moves we can cache in advance.
@@ -1438,12 +1438,12 @@ motorized bed leveling */
    The same 3 points are used for the G29 command.
 */
 #define FEATURE_AUTOLEVEL false
-#define Z_PROBE_X1 -69.28
-#define Z_PROBE_Y1 -40
-#define Z_PROBE_X2 69.28
-#define Z_PROBE_Y2 -40
-#define Z_PROBE_X3 0
-#define Z_PROBE_Y3 80
+#define Z_PROBE_X1 310
+#define Z_PROBE_Y1 398
+#define Z_PROBE_X2 140
+#define Z_PROBE_Y2 98
+#define Z_PROBE_X3 480
+#define Z_PROBE_Y3 98
 /* Bending correction adds a value to a measured z-probe value. This may be
   required when the z probe needs some force to trigger and this bends the
   bed down. Currently the correction values A/B/C correspond to z probe
@@ -1532,7 +1532,7 @@ Always hard to say since the other angle is 89° in this case!
 #define SD_EXTENDED_DIR 1
 /** The GCODEs in this line get executed, when you stop a SD print before it was ended.
 Separate commands by \n */
-#define SD_RUN_ON_STOP ""
+#define SD_RUN_ON_STOP "" // 500XL MME - !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Think about what to do after stop.
 /** Disable motors and heaters when print was stopped. */
 #define SD_STOP_HEATER_AND_MOTORS_ON_STOP 1
 // If you want support for G2/G3 arc commands set to true, otherwise false.
@@ -1643,8 +1643,8 @@ computations, so do not enable it if your display works stable!
 //#define TRY_AUTOREPAIR_LCD_ERRORS
 
 // This is line 2 of the status display at startup. Change to your like.
-#define UI_PRINTER_NAME "Ordbot"
-#define UI_PRINTER_COMPANY "RepRapDiscount"
+#define UI_PRINTER_NAME "500XL"
+#define UI_PRINTER_COMPANY "Roble"
 
 
 /** Animate switches between menus etc. */
@@ -1660,7 +1660,7 @@ info pages with next/previous button/click-encoder */
 #define UI_DISABLE_AUTO_PAGESWITCH 1
 
 /** Time to return to info menu if x milliseconds no key was pressed. Set to 0 to disable it. */
-#define UI_AUTORETURN_TO_MENU_AFTER 30000
+#define UI_AUTORETURN_TO_MENU_AFTER 0
 
 #define FEATURE_UI_KEYS 0
 
@@ -1679,7 +1679,7 @@ the move distance depending on the speed you turn the encoder. That way you can 
 same setting.
 
 */
-#define UI_SPEEDDEPENDENT_POSITIONING 1
+#define UI_SPEEDDEPENDENT_POSITIONING 0
 
 /** If set to 1 faster turning the wheel makes larger jumps. Helps for faster navigation. */
 #define UI_DYNAMIC_ENCODER_SPEED 1          // enable dynamic rotary encoder speed
