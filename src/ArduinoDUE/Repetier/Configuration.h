@@ -475,14 +475,14 @@ M140 command, after a given temperature is reached. */
 If you have a lcd display, you can do a filament switch with M600.
 It will change the current extruders filament and temperature must already be high enough.
 */
-#define FILAMENTCHANGE_X_POS 100 // 500XL MME - !
-#define FILAMENTCHANGE_Y_POS 300 // 500XL MME - !
-#define FILAMENTCHANGE_Z_ADD 1 // 500XL MME - !
+#define FILAMENTCHANGE_X_POS 310 // 500XL MME - !
+#define FILAMENTCHANGE_Y_POS 50 // 500XL MME - !
+#define FILAMENTCHANGE_Z_ADD 10 // 500XL MME - !
 /** Does a homing procedure after a filament change. This is good in case
 you moved the extruder while changing filament during print.
 0 = no homing, 1 = xy homing, 2 = xyz homing
 */
-#define FILAMENTCHANGE_REHOME 1 // 500XL MME - TEST, SHOULD BE YX HOMING
+#define FILAMENTCHANGE_REHOME 0 // 500XL MME - TEST, SHOULD BE YX HOMING
 /** Will first retract short distance, go to change position and then retract longretract.
 Retractions speeds are taken from RETRACTION_SPEED and RETRACTION_UNDO_SPEED
 */
@@ -1111,9 +1111,9 @@ for some printers causing an early stall.
 /** \brief X, Y, Z max acceleration in mm/s^2 for printing moves or retracts. Make sure your printer can go that high!
  Overridden if EEPROM activated.
 */
-#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_X 3000
-#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Y 3000
-#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Z 3000
+#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_X 1500
+#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Y 1500
+#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Z 1000
 
 /** \brief X, Y, Z max acceleration in mm/s^2 for travel moves.  Overridden if EEPROM activated.*/
 #define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_X 4000
@@ -1194,7 +1194,7 @@ is at least molten. After having some complains that the extruder does not work,
 it 0 as default.
 */
 
-#define MIN_EXTRUDER_TEMP 0
+#define MIN_EXTRUDER_TEMP 150
 
 /** \brief Enable advance algorithm.
 
@@ -1426,12 +1426,12 @@ from 1 and use that as plane.
 #define BED_LEVELING_REPETITIONS 5
 /* These are the motor positions relative to bed origin. Only needed for
 motorized bed leveling */
-#define BED_MOTOR_1_X 0
-#define BED_MOTOR_1_Y 0
-#define BED_MOTOR_2_X 200
-#define BED_MOTOR_2_Y 0
-#define BED_MOTOR_3_X 100
-#define BED_MOTOR_3_Y 200
+#define BED_MOTOR_1_X 140
+#define BED_MOTOR_1_Y 98
+#define BED_MOTOR_2_X 480
+#define BED_MOTOR_2_Y 98
+#define BED_MOTOR_3_X 0
+#define BED_MOTOR_3_Y 0
 
 /* Autoleveling allows it to z-probe 3 points to compute the inclination and compensates the error for the print.
    This feature requires a working z-probe and you should have z-endstop at the top not at the bottom.
@@ -1559,7 +1559,7 @@ goes on as soon as moves occur. Mainly to prevent overheating of stepper drivers
 //#undef FAN_BOARD_PIN
 //#define FAN_BOARD_PIN ORIG_FAN_PIN
 /** Speed of board fan when on. 0 = off, 255 = max */
-#define BOARD_FAN_SPEED 255
+#define BOARD_FAN_SPEED 0
 
 /* You can have one additional fan controlled by a temperature. You can set
    set at which temperature it should turn on and at which it should reach max. speed.
@@ -1682,7 +1682,7 @@ same setting.
 #define UI_SPEEDDEPENDENT_POSITIONING 0
 
 /** If set to 1 faster turning the wheel makes larger jumps. Helps for faster navigation. */
-#define UI_DYNAMIC_ENCODER_SPEED 1          // enable dynamic rotary encoder speed
+#define UI_DYNAMIC_ENCODER_SPEED 0          // enable dynamic rotary encoder speed
 
 /** \brief bounce time of keys in milliseconds */
 #define UI_KEY_BOUNCETIME 10
@@ -1716,10 +1716,10 @@ Values must be in range 1..255
 // Extreme values
 #define UI_SET_MIN_HEATED_BED_TEMP  50
 #define UI_SET_MAX_HEATED_BED_TEMP 110
-#define UI_SET_MIN_EXTRUDER_TEMP   160
+#define UI_SET_MIN_EXTRUDER_TEMP   150
 #define UI_SET_MAX_EXTRUDER_TEMP   270
-#define UI_SET_EXTRUDER_FEEDRATE 5 // mm/sec
-#define UI_SET_EXTRUDER_RETRACT_DISTANCE 3 // mm
+#define UI_SET_EXTRUDER_FEEDRATE 3 // mm/sec
+#define UI_SET_EXTRUDER_RETRACT_DISTANCE 10 // mm
 
 /*
 #define USER_KEY1_PIN     UI_DISPLAY_D5_PIN      // D5 to display (not used for graphics controller), change to other pin if you use character LCD !
