@@ -1839,7 +1839,7 @@ void Commands::processMCode(GCode *com) {
                 Extruder::setMixingWeight(com->S, com->P);
             Extruder::recomputeMixingExtruderSteps();
             break;
-        case 164: /// M164 S<virtNum> P<0 = dont store eeprom,1 = store to eeprom> - Store weights as virtual extruder S
+        case 164: /// M164 S<virtNum> P<0 = dont store eeprom,1 = store to eeprom> - Store weights as  virtual extruder S
             if(!com->hasS() || com->S < 0 || com->S >= VIRTUAL_EXTRUDER) break; // ignore illigal values
             for(uint8_t i = 0; i < NUM_EXTRUDER; i++) {
                 extruder[i].virtualWeights[com->S] = extruder[i].mixingW;
