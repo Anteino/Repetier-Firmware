@@ -624,6 +624,8 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_calculate_leveling, UI_TEXT_CALCULATE_LEVELING_I
 UI_MENU(ui_menu_level, UI_MENU_LEVEL, 4 + 3 * UI_SPEED + UI_MENU_BACKCNT)
 #endif
 
+
+
 // **** Extruder menu
 UI_MENU_CHANGEACTION_T(ui_menu_ext_temp0, UI_TEXT_EXTR0_TEMP_ID, UI_ACTION_EXTRUDER0_TEMP)
 #if NUM_EXTRUDER > 1 && MIXING_EXTRUDER == 0
@@ -730,9 +732,11 @@ UI_MENU(ui_menu_extruder, UI_MENU_EXTRUDER, UI_MENU_BACKCNT + UI_MENU_BEDCNT + U
 // **** SD card menu
 
 // **** Quick menu
-UI_MENU_ACTIONCOMMAND_T(ui_menu_500xl_test, UI_TEXT_500XL_TEST_ID, UI_ACTION_500XL_TEST)
-#define MENU_500XL_TEST_COUNT 1
-#define MENU_500XL_TEST_ENTRY ,&ui_menu_500xl_test
+UI_MENU_ACTIONCOMMAND_T(ui_menu_500xl_bed_level_wizard, UI_TEXT_500XL_BED_LEVEL_WIZARD_ID, UI_ACTION_500XL_BED_LEVEL_WIZARD)
+UI_MENU_ACTIONCOMMAND_T(ui_menu_500xl_test2, UI_TEXT_500XL_TEST2_ID, UI_ACTION_500XL_TEST2)
+#define MENU_500XL_TEST_COUNT 2
+#define MENU_500XL_BED_LEVEL_WIZARD_ENTRY ,&ui_menu_500xl_bed_level_wizard
+#define MENU_500XL_TEST2_ENTRY ,&ui_menu_500xl_test2
 
 #if PS_ON_PIN > -1
 UI_MENU_ACTIONCOMMAND_T(ui_menu_quick_power, UI_TEXT_POWER_ID, UI_ACTION_POWER)
@@ -782,7 +786,7 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_quick_changefil, UI_TEXT_CHANGE_FILAMENT_ID, UI_
 #define UI_CHANGE_FIL_ENT
 #endif
 
-#define UI_MENU_QUICK {UI_MENU_ADDCONDBACK &ui_menu_home_all MENU_500XL_TEST_ENTRY BABY_ENTRY ,&ui_menu_quick_speedmultiply,&ui_menu_quick_flowmultiply UI_TOOGLE_LIGHT_ENTRY UI_CHANGE_FIL_ENT,&ui_menu_quick_preheat_pla,&ui_menu_quick_preheat_abs,&ui_menu_quick_cooldown,&ui_menu_quick_origin,&ui_menu_quick_stopstepper MENU_PSON_ENTRY DEBUG_PRINT_EXTRA}
+#define UI_MENU_QUICK {UI_MENU_ADDCONDBACK &ui_menu_home_all MENU_500XL_BED_LEVEL_WIZARD_ENTRY MENU_500XL_TEST2_ENTRY BABY_ENTRY ,&ui_menu_quick_speedmultiply,&ui_menu_quick_flowmultiply UI_TOOGLE_LIGHT_ENTRY UI_CHANGE_FIL_ENT,&ui_menu_quick_preheat_pla,&ui_menu_quick_preheat_abs,&ui_menu_quick_cooldown,&ui_menu_quick_origin,&ui_menu_quick_stopstepper MENU_PSON_ENTRY DEBUG_PRINT_EXTRA}
 UI_MENU(ui_menu_quick, UI_MENU_QUICK, 8 + BABY_CNT + UI_MENU_BACKCNT + MENU_PSON_COUNT + MENU_500XL_TEST_COUNT + DEBUG_PRINT_COUNT + UI_TOGGLE_LIGHT_COUNT + UI_CHANGE_FIL_CNT)
 
 // **** Bed Coating Menu
