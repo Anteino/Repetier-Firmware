@@ -21,6 +21,7 @@
 // The uimenu.h declares static variables of menus, which must be declared only once.
 // It does not define interfaces for other modules, so should never be included elsewhere
 #include "uimenu.h"
+#include "Printer500XL.h"
 
 extern const int8_t encoder_table[16] PROGMEM ;
 #include <math.h>
@@ -3593,28 +3594,11 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
             break;
         case UI_ACTION_500XL_BED_LEVEL_WIZARD:
             if (!allowMoves) return action;
-            Com::printFLN("500XL bed level wizard start");
-            // HOME Y, X
-            GCode::executeFString(PSTR("G28 Y\n"));
-            GCode::executeFString(PSTR("G28 X\n"));
-            // Park extruder 1 and 2
-            GCode::executeFString(PSTR("M700 T1\n"));
-            GCode::executeFString(PSTR("M700 T2\n"));
-            // Home Z and move bed down 
-            GCode::executeFString(PSTR("G28 Z\n"));
-            GCode::executeFString(PSTR("G1 Z10\n"));
-            // Fetch extruder 1 and move to level position 1
-            GCode::executeFString(PSTR("G1 X0\n"));
-            GCode::executeFString(PSTR("G1 X310 Y398 F4000\n"));
-            //TODO: Allow user to move bed to nozzle
-
-            Com::printFLN("500XL bed level wizard end");
+            Printer500XL::StartBedLevelWizard();
             break;
         case UI_ACTION_500XL_TEST2:
-            Com::printFLN("500XL test 2: home X");
             if (!allowMoves) return action;
-            // HOME X
-            GCode::executeFString(PSTR("G28 X\n"));
+            Printer500XL::MenuTest2();
             break;
         case UI_ACTION_LANGUAGE_EN:
         case UI_ACTION_LANGUAGE_DE:
