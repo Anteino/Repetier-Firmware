@@ -3591,31 +3591,31 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
         case UI_ACTION_TEMP_DEFECT:
             Printer::setAnyTempsensorDefect();
             break;
-		  case UI_ACTION_500XL_BED_LEVEL_WIZARD:
-			  if (!allowMoves) return action;
-			  Com::printFLN("500XL bed level wizard start");
-			  // HOME Y, X
-			  GCode::executeFString(PSTR("G28 Y\n"));
-			  GCode::executeFString(PSTR("G28 X\n"));
-			  // Park extruder 1 and 2
-			  GCode::executeFString(PSTR("M700 T1\n"));
-			  GCode::executeFString(PSTR("M700 T2\n"));
-			  // Home Z and move bed down 
-			  GCode::executeFString(PSTR("G28 Z\n"));
-			  GCode::executeFString(PSTR("G1 Z10\n"));
-			  // Fetch extruder 1 and move to level position 1
-			  GCode::executeFString(PSTR("G1 X0\n"));
-			  GCode::executeFString(PSTR("G1 X310 Y398 F4000\n"));
-			  //TODO: Allow user to move bed to nozzle
+        case UI_ACTION_500XL_BED_LEVEL_WIZARD:
+            if (!allowMoves) return action;
+            Com::printFLN("500XL bed level wizard start");
+            // HOME Y, X
+            GCode::executeFString(PSTR("G28 Y\n"));
+            GCode::executeFString(PSTR("G28 X\n"));
+            // Park extruder 1 and 2
+            GCode::executeFString(PSTR("M700 T1\n"));
+            GCode::executeFString(PSTR("M700 T2\n"));
+            // Home Z and move bed down 
+            GCode::executeFString(PSTR("G28 Z\n"));
+            GCode::executeFString(PSTR("G1 Z10\n"));
+            // Fetch extruder 1 and move to level position 1
+            GCode::executeFString(PSTR("G1 X0\n"));
+            GCode::executeFString(PSTR("G1 X310 Y398 F4000\n"));
+            //TODO: Allow user to move bed to nozzle
 
-			  Com::printFLN("500XL bed level wizard end");
-			  break;
-		  case UI_ACTION_500XL_TEST2:
-			  Com::printFLN("500XL test 2: home X");
-			  if (!allowMoves) return action;
-			  // HOME X
-			  GCode::executeFString(PSTR("G28 X\n"));
-			  break;
+            Com::printFLN("500XL bed level wizard end");
+            break;
+        case UI_ACTION_500XL_TEST2:
+            Com::printFLN("500XL test 2: home X");
+            if (!allowMoves) return action;
+            // HOME X
+            GCode::executeFString(PSTR("G28 X\n"));
+            break;
         case UI_ACTION_LANGUAGE_EN:
         case UI_ACTION_LANGUAGE_DE:
         case UI_ACTION_LANGUAGE_NL:
