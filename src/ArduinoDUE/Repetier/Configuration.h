@@ -101,7 +101,7 @@ pins. Separate multiple GCODEs with \n
 */
 
 //#define STARTUP_GCODE ""
-#define STARTUP_GCODE "G28 X\nT0\n"
+#define STARTUP_GCODE "G28 X\n"
 
 // ##########################################################################################
 // ##                               Calibration                                            ##
@@ -337,9 +337,9 @@ The codes are only executed for multiple extruder when changing the extruder.
 
 
 // =========================== Configuration for second extruder ========================
-#define EXT1_X_OFFSET 46 // MOETEN WE HIER DE 46mm INVULLEN? In principe niet, wordt toch overschreven door EEPROM
-#define EXT1_Y_OFFSET 0 // komt uit de calibratie wizard
-#define EXT1_Z_OFFSET 0 // komt uit de calibratie wizard
+#define EXT1_X_OFFSET 43615 // steps!!
+#define EXT1_Y_OFFSET 0
+#define EXT1_Z_OFFSET 0
 
 // for skeinforge 40 and later, steps to pull the plastic 1 mm inside the extruder, not out.  Overridden if EEPROM activated.
 #define EXT1_STEPS_PER_MM EXT0_STEPS_PER_MM
@@ -929,7 +929,7 @@ turn z off when heaters get also disabled.
 // For delta robot Z_MAX_LENGTH is the maximum travel of the towers and should be set to the distance between the hotend
 // and the platform when the printer is at its home position.
 // If EEPROM is enabled these values will be overridden with the values in the EEPROM
-#define X_MAX_LENGTH 574
+#define X_MAX_LENGTH 528
 #define Y_MAX_LENGTH 496
 #define Z_MAX_LENGTH 500
 
@@ -1081,14 +1081,14 @@ Overridden if EEPROM activated.
 The axis order in all axis related arrays is X, Y, Z
 Overridden if EEPROM activated.
 */
-#define MAX_FEEDRATE_X 100 // mm/s // was 50
-#define MAX_FEEDRATE_Y 100 // mm/s // was 50
-#define MAX_FEEDRATE_Z 20 // mm/s // was 40
+#define MAX_FEEDRATE_X 100 // mm/s
+#define MAX_FEEDRATE_Y 100 // mm/s
+#define MAX_FEEDRATE_Z 15 // mm/s
 
 /** Home position speed in mm/s. Overridden if EEPROM activated. */
 #define HOMING_FEEDRATE_X 40 // mm/s
 #define HOMING_FEEDRATE_Y 40 // mm/s
-#define HOMING_FEEDRATE_Z 20 // mm/s
+#define HOMING_FEEDRATE_Z 15 // mm/s
 
 /** Set order of axis homing. Use HOME_ORDER_XYZ and replace XYZ with your order.
 * If you measure Z with your extruder tip you need a hot extruder to get right measurement. In this
@@ -1099,7 +1099,7 @@ Overridden if EEPROM activated.
 #define HOMING_ORDER HOME_ORDER_YXZ
 
 // Used for homing order HOME_ORDER_ZXYTZ
-#define ZHOME_MIN_TEMPERATURE 150 // was 50
+#define ZHOME_MIN_TEMPERATURE 150
 
 // needs to heat all extruders (1) or only current extruder (0)
 #define ZHOME_HEAT_ALL 1
@@ -1123,7 +1123,7 @@ own weight, so this is nearly ever needed.
 #define Y_BACKLASH 0
 
 /* Comment this to disable ramp acceleration */
-#define RAMP_ACCELERATION 1 // What is ramp acceleration?
+#define RAMP_ACCELERATION 1
 
 /** If your stepper needs a longer high signal then given, you can add a delay here.
 The delay is realized as a simple loop wasting time, which is not available for other
@@ -1170,12 +1170,12 @@ Overridden if EEPROM activated.
 */
 #define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_X 1200
 #define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Y 1200
-#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Z 300 // was 30000
+#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Z 200
 
 /* \brief X, Y, Z max acceleration in mm/s^2 for travel moves.  Overridden if EEPROM activated.*/
 #define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_X 2000
 #define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Y 2000
-#define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Z 300 // was 3000
+#define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Z 200
 
 /** If you print on a moving bed, it can become more shaky the higher and bigger
 your print gets. Therefore it might be helpfull to reduce acceleration with
@@ -1338,7 +1338,7 @@ matches, the stored values are used to overwrite the settings.
 IMPORTANT: With mode <>0 some changes in Configuration.h are not set any more, as they are
            taken from the EEPROM.
 */
-#define EEPROM_MODE 0
+#define EEPROM_MODE 1
 
 
 /** ************** duplicate motor driver ***************

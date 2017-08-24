@@ -2437,9 +2437,7 @@ int UIDisplay::okAction(bool allowMoves)
                 pushMenu(&ui_wiz_manual_probe, true); // present menu to raise bed to extruder 0, and confirm by clicking
                 break;
               case secondStage:
-                Printer::setOrigin(0, 0, 5);
-                //GCode::executeFString(PSTR("G92 Z5\n")); // set current position to strip thickness
-                // store zPosition extruder0
+                //GCode::executeFString(PSTR("M206 T0 Z5\n")); // Store Z-height
                 GCode::executeFString(PSTR("G1 Z8\n")); // lower bed to safe distance from nozzle
                 GCode::executeFString(PSTR("G0 X140 Y98 F6000\n")); // go to second level position
                 GCode::executeFString(PSTR("G1 Z5\n")); // raise bed to height of firstStage

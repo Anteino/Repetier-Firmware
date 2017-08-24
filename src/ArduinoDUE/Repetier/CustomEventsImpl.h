@@ -4,9 +4,9 @@
 
 void ParkExtruder1() {
 	//TODO:RM: Move positions to config
-	GCode::executeFString(PSTR("G1 X574 Y496 F6000\n"));
+	GCode::executeFString(PSTR("G1 X528 Y496 F6000\n"));
 	GCode::executeFString(PSTR("G1 Y506 F2000 S1\n"));
-	GCode::executeFString(PSTR("G1 X564 F2000\n"));
+	GCode::executeFString(PSTR("G1 X518 F2000\n"));
 	GCode::executeFString(PSTR("G1 Y0 F6000 S0\n"));
 }
 
@@ -52,9 +52,3 @@ bool CustomMCodeHandler(GCode *com)
 		return false;
 	}
 }
-
-
-
-
-
-

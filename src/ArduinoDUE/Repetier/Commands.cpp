@@ -81,20 +81,22 @@ bool eventUnhandledGCode(GCode *com)
     switch(com->T)
     {
       case 0:
-        GCode::executeFString(PSTR("G1 X574 F6000\n"));
-        GCode::executeFString(PSTR("G1 Y506 S1\n"));
-        GCode::executeFString(PSTR("G1 X564\n"));
-        GCode::executeFString(PSTR("G1 Y496\n"));
-        GCode::executeFString(PSTR("G1 X0 S0\n"));
+        GCode::executeFString(PSTR("G1 X528 F6000\n"));
+        GCode::executeFString(PSTR("G1 Y496 F6000\n"));
+        GCode::executeFString(PSTR("G1 Y506 F2000 S1\n"));
+        GCode::executeFString(PSTR("G1 X518 F2000\n"));
+        GCode::executeFString(PSTR("G1 Y496 F2000 S0\n"));
+        GCode::executeFString(PSTR("G1 X0 F6000\n"));
         GCode::executeFString(PSTR("G92 E0\n"));
         return true;
         break;
       case 1:
         GCode::executeFString(PSTR("G0 X0 F6000\n"));
-        GCode::executeFString(PSTR("G0 Y506 S1\n"));
-        GCode::executeFString(PSTR("G0 X10\n"));
-        GCode::executeFString(PSTR("G0 Y496\n"));
-        GCode::executeFString(PSTR("G0 X574 S0\n"));
+        GCode::executeFString(PSTR("G0 Y496 F6000\n"));
+        GCode::executeFString(PSTR("G0 Y506 F2000 S1\n"));
+        GCode::executeFString(PSTR("G0 X10 F2000\n"));
+        GCode::executeFString(PSTR("G0 Y496 F2000 S0\n"));
+        GCode::executeFString(PSTR("G0 X574 F6000 S0\n"));
         GCode::executeFString(PSTR("G92 E0\n"));
         return true;
         break;
@@ -199,7 +201,7 @@ void Commands::waitUntilEndOfAllBuffers() {
 #endif
             } else
 #endif
-            
+
             Commands::executeGCode(code);
             code->popCurrentCommand();
         }
@@ -1043,7 +1045,7 @@ void Commands::processGCode(GCode *com) {
 #if defined(SUPPORT_LASER) && SUPPORT_LASER
 				bool oldLaser = LaserDriver::laserOn;
 			    LaserDriver::laserOn = false;
-#endif				
+#endif
                 uint8_t homeAllAxis = (com->hasNoXYZ() && !com->hasE());
                 if(com->hasE())
                     Printer::currentPositionSteps[E_AXIS] = 0;
@@ -1150,7 +1152,7 @@ void Commands::processGCode(GCode *com) {
 #endif
             }
             break;
-        case 30: 
+        case 30:
 			{ // G30 single probe set Z0
                 uint8_t p = (com->hasP() ? (uint8_t)com->P : 3);
                 if(Printer::runZProbe(p & 1,p & 2) == ILLEGAL_Z_PROBE) {
@@ -1451,7 +1453,7 @@ void Commands::processGCode(GCode *com) {
 
 #endif // DRIVE_SYSTEM
 #if FEATURE_Z_PROBE && NUM_EXTRUDER > 1
-        case 134: 
+        case 134:
 			{ // - G134 Px Sx Zx - Calibrate nozzle height difference (need z probe in nozzle!) Px = reference extruder, Sx = only measure extrude x against reference, Zx = add to measured z distance for Sx for correction.
                 float z = com->hasZ() ? com->Z : 0;
                 int p = com->hasP() ? com->P : 0;
@@ -2105,11 +2107,11 @@ void Commands::processMCode(GCode *com) {
 				Extruder::current = &extruder[0];
 				Extruder::dittoMode = 1;
 			}
-#else		
+#else
             if(com->hasS()) { // Set ditto mode S: 0 = off, 1 = 1 extra extruder, 2 = 2 extra extruder, 3 = 3 extra extruders
                 Extruder::dittoMode = com->S;
             }
-#endif			
+#endif
             break;
 #endif
         case 281: // Trigger watchdog
@@ -2451,7 +2453,7 @@ break;
 		case 999: // Stop fatal error take down
 			if(com->hasS())
 				GCode::fatalError(PSTR("Testing fatal error"));
-			else				
+			else
 				GCode::resetFatalError();
 			break;
         default:
