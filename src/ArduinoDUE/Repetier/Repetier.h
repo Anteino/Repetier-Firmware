@@ -68,7 +68,7 @@ usage or for searching for memory induced errors. Switch it off for production, 
 // Debug reason for not mounting a sd card
 //#define DEBUG_SD_ERROR
 // Uncomment the following line to enable debugging. You can better control debugging below the following line
-//#define DEBUG
+#define DEBUG
 
 #define CARTESIAN 0
 #define XY_GANTRY 1

@@ -221,8 +221,8 @@ void Commands::printCurrentPosition(FSTRINGPARAM(s)) {
     Com::printF(Com::tSpaceYColon, y * (Printer::unitIsInches ? 0.03937 : 1), 2);
     Com::printF(Com::tSpaceZColon, z * (Printer::unitIsInches ? 0.03937 : 1), 3);
     Com::printFLN(Com::tSpaceEColon, Printer::currentPositionSteps[E_AXIS] * Printer::invAxisStepsPerMM[E_AXIS] * (Printer::unitIsInches ? 0.03937 : 1), 4);
-    //Com::printF(PSTR("OffX:"),Printer::offsetX); // to debug offset handling
-    //Com::printFLN(PSTR(" OffY:"),Printer::offsetY);
+    Com::printF(PSTR("OffX:"),Printer::offsetX); // to debug offset handling
+    Com::printFLN(PSTR(" OffY:"),Printer::offsetY);
 }
 
 void Commands::printTemperatures(bool showRaw) {

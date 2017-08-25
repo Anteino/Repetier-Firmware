@@ -2428,10 +2428,12 @@ int UIDisplay::okAction(bool allowMoves)
                 //GCode::executeFString(PSTR("M109 T1 S60\n")); // heat up extruders
                 //break;
               case firstStage:
+                Commands::printCurrentPosition(PSTR("Bed level start"));
                 GCode::executeFString(PSTR("G28 X Y Z\n")); // home all
                 GCode::executeFString(PSTR("G1 Z8\n")); // lower bed to safe distance from nozzle
                 GCode::executeFString(PSTR("T0\n")); // select extruder 0, leaving extruder 1 in parking position
                 GCode::executeFString(PSTR("G0 X310 Y398 F6000\n")); // go to first level position
+                Commands::printCurrentPosition(PSTR("Bed level first stage"));
                 popMenu(true);
                 pushMenu(&ui_wiz_manual_probe, true); // present menu to raise bed to extruder 0, and confirm by clicking
                 break;
@@ -2442,6 +2444,7 @@ int UIDisplay::okAction(bool allowMoves)
                 GCode::executeFString(PSTR("G1 Z8\n")); // lower bed to safe distance from nozzle
                 GCode::executeFString(PSTR("G0 X140 Y98 F6000\n")); // go to second level position
                 GCode::executeFString(PSTR("G1 Z5\n")); // raise bed to height of firstStage
+                Commands::printCurrentPosition(PSTR("Bed level second stage"));
                 popMenu(true);
                 pushMenu(&ui_wiz_hardware_knob_left, true); // ask user to level with hardware knob under the bed, and confirm by clicking
                 break;
@@ -2449,6 +2452,7 @@ int UIDisplay::okAction(bool allowMoves)
                 GCode::executeFString(PSTR("G1 Z8\n")); // lower bed to safe distance from nozzle
                 GCode::executeFString(PSTR("G0 X480 F6000\n")); // go to third level position
                 GCode::executeFString(PSTR("G1 Z5\n")); // raise bed to height of firstStage
+                Commands::printCurrentPosition(PSTR("Bed level third stage"));
                 popMenu(true);
                 pushMenu(&ui_wiz_hardware_knob_right, true); // ask user to level with hardware knob under the bed, and confirm by clicking
                 break;
@@ -2456,6 +2460,7 @@ int UIDisplay::okAction(bool allowMoves)
                 GCode::executeFString(PSTR("G1 Z8\n")); // lower bed to safe distance from nozzle
                 GCode::executeFString(PSTR("T1\n")); // activate extruder 1
                 GCode::executeFString(PSTR("G0 X264 Y398 F6000\n")); //
+                Commands::printCurrentPosition(PSTR("Bed level second nozzle"));
                 popMenu(true);
                 pushMenu(&ui_wiz_manual_probe, true); // present menu to user asking to raise bed until second nozzle touches, and confirm by clicking
                 break;
@@ -2465,6 +2470,7 @@ int UIDisplay::okAction(bool allowMoves)
                 GCode::executeFString(PSTR("G1 Z8\n")); // lower bed to safe distance from nozzle
                 // GCode::executeFString(PSTR("T0\n"));
                 // GCode::executeFString(PSTR("G1 X0 Y0\n"));
+                Commands::printCurrentPosition(PSTR("Bed level finish"));
                 bedLevelState = stopped;
                 popMenu(true);
                 break;
