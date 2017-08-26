@@ -384,9 +384,10 @@ void GCode::readFromSerial()
             timeOfLastDataPacket = time;
         }
 #ifdef WAITING_IDENTIFIER
-        else if(bufferLength == 0 && time - timeOfLastDataPacket > 10000)   // Don't do it if buffer is not empty. It may be a slow executing command.
+        else if(bufferLength == 0 && time - timeOfLastDataPacket > 1000)   // Don't do it if buffer is not empty. It may be a slow executing command.
         {
-            Com::printFLN(Com::tWait); // Unblock communication in case the last ok was not received correct.
+            //Com::printFLN(Com::tWait); // Unblock communication in case the last ok was not received correct.
+            Com::printF(PSTR(".")); // Unblock communication in case the last ok was not received correct.
             timeOfLastDataPacket = time;
         }
 #endif
