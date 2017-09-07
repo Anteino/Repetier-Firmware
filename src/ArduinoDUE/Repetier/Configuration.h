@@ -87,7 +87,7 @@ pins. Separate multiple GCODEs with \n
 */
 
 //#define STARTUP_GCODE ""
-#define STARTUP_GCODE "G28 X\nT0\n"
+#define STARTUP_GCODE "G28 X\n\nT0\n"
 
 // ##########################################################################################
 // ##                               Calibration                                            ##
@@ -319,7 +319,7 @@ The codes are only executed for multiple extruder when changing the extruder.
 
 
 // =========================== Configuration for second extruder ========================
-#define EXT1_X_OFFSET 46 // MOETEN WE HIER DE 46mm INVULLEN? In principe niet, wordt toch overschreven door EEPROM
+#define EXT1_X_OFFSET -44.5 // 
 #define EXT1_Y_OFFSET 0 // komt uit de calibratie wizard
 #define EXT1_Z_OFFSET 0 // komt uit de calibratie wizard
 
@@ -463,7 +463,7 @@ cog. Direct drive extruder need 0.
 /* If enabled you can select the distance your filament gets retracted during a
 M140 command, after a given temperature is reached.
 */
-#define RETRACT_DURING_HEATUP true
+#define RETRACT_DURING_HEATUP false
 
 /* Allow retraction with G10/G11 removing requirement for retraction setting in slicer. Also allows filament change if lcd is configured. */
 #define FEATURE_RETRACTION 1
@@ -472,8 +472,8 @@ M140 command, after a given temperature is reached.
  simple extrusion e.g. over Repetier-Host will then not work!
  */
 #define AUTORETRACT_ENABLED 0
-#define RETRACTION_LENGTH 3 // mm
-#define RETRACTION_LONG_LENGTH 13 // mm
+#define RETRACTION_LENGTH 0 // mm
+#define RETRACTION_LONG_LENGTH 0 // mm
 #define RETRACTION_SPEED 20 // mm/s
 #define RETRACTION_Z_LIFT 0 //mm
 #define RETRACTION_UNDO_EXTRA_LENGTH 0 //mm
@@ -894,14 +894,14 @@ Overridden if EEPROM activated.
 The axis order in all axis related arrays is X, Y, Z
 Overridden if EEPROM activated.
 */
-#define MAX_FEEDRATE_X 100 // mm/s // was 50
-#define MAX_FEEDRATE_Y 100 // mm/s // was 50
-#define MAX_FEEDRATE_Z 15 // mm/s // was 40
+#define MAX_FEEDRATE_X 100
+#define MAX_FEEDRATE_Y 100
+#define MAX_FEEDRATE_Z 15
 
 /** Home position speed in mm/s. Overridden if EEPROM activated. */
-#define HOMING_FEEDRATE_X 40 // mm/s
-#define HOMING_FEEDRATE_Y 40 // mm/s
-#define HOMING_FEEDRATE_Z 15 // mm/s
+#define HOMING_FEEDRATE_X 40
+#define HOMING_FEEDRATE_Y 40
+#define HOMING_FEEDRATE_Z 15
 
 /** Set order of axis homing. Use HOME_ORDER_XYZ and replace XYZ with your order.
 * If you measure Z with your extruder tip you need a hot extruder to get right measurement. In this
@@ -983,12 +983,12 @@ Overridden if EEPROM activated.
 */
 #define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_X 1200
 #define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Y 1200
-#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Z 300 // was 30000
+#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Z 300
 
 /* \brief X, Y, Z max acceleration in mm/s^2 for travel moves.  Overridden if EEPROM activated.*/
 #define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_X 2000
 #define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Y 2000
-#define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Z 300 // was 3000
+#define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Z 300
 
 /** If you print on a moving bed, it can become more shaky the higher and bigger
 your print gets. Therefore it might be helpfull to reduce acceleration with
@@ -1151,7 +1151,7 @@ matches, the stored values are used to overwrite the settings.
 IMPORTANT: With mode <>0 some changes in Configuration.h are not set any more, as they are
            taken from the EEPROM.
 */
-#define EEPROM_MODE 0
+#define EEPROM_MODE 1
 
 
 /** ************** duplicate motor driver ***************
@@ -1358,7 +1358,7 @@ parameter to then tangens of the deviation from
 #define FEATURE_SOFTWARE_LEVELING 0
 
 /* Babystepping allows to change z height during print without changing official z height. */
-#define FEATURE_BABYSTEPPING 1
+#define FEATURE_BABYSTEPPING true
 /* If you have a threaded rod, you want a higher multiplicator to see an effect. Limit value to 50 or you get easily overflows. */
 #define BABYSTEP_MULTIPLICATOR 10
 

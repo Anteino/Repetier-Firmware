@@ -2740,7 +2740,7 @@ ZPOS2:
         break;
     case UI_ACTION_EPOSITION:
         if(!allowMoves) return false;
-        PrintLine::moveRelativeDistanceInSteps(0,0,0,Printer::axisStepsPerMM[E_AXIS]*increment / Printer::extrusionFactor,UI_SET_EXTRUDER_FEEDRATE,true,false,false);
+        PrintLine::moveRelativeDistanceInSteps(0,0,0,Printer::axisStepsPerMM[E_AXIS] * increment * 0.5,UI_SET_EXTRUDER_FEEDRATE,true,false,false);
         Commands::printCurrentPosition(PSTR("UI_ACTION_EPOSITION "));
         break;
 #if FEATURE_RETRACTION
@@ -3250,11 +3250,22 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
 #if NUM_EXTRUDER > 5
         case UI_ACTION_SELECT_EXTRUDER5:
 #endif
-            if(!allowMoves) return action;
-            Extruder::selectExtruderById(action - UI_ACTION_SELECT_EXTRUDER0);
-            currHeaterForSetup = &(Extruder::current->tempControl);
-            Printer::setMenuMode(MENU_MODE_FULL_PID, currHeaterForSetup->heatManager == 1);
-            Printer::setMenuMode(MENU_MODE_DEADTIME, currHeaterForSetup->heatManager == 3);
+//            if(!allowMoves) return action;
+//            Extruder::selectExtruderById(action - UI_ACTION_SELECT_EXTRUDER0);
+//            currHeaterForSetup = &(Extruder::current->tempControl);
+//            Printer::setMenuMode(MENU_MODE_FULL_PID, currHeaterForSetup->heatManager == 1);
+//            Printer::setMenuMode(MENU_MODE_DEADTIME, currHeaterForSetup->heatManager == 3);
+            switch(action - UI_ACTION_SELECT_EXTRUDER0)
+            {
+              case 0:
+                GCode::executeFString(PSTR("T0\n"));
+                break;
+              case 1:
+                GCode::executeFString(PSTR("T1\n"));
+                break;
+              default:
+                break;
+            }
             break;
 #if FEATURE_DITTO_PRINTING
         case UI_DITTO_0:
