@@ -133,15 +133,16 @@
 #define UI_ACTION_DRIVE_MAX             1062
 #define UI_ACTION_X_OFFSET              1063
 #define UI_ACTION_Y_OFFSET              1064
-#define UI_ACTION_EXTR_STEPS            1065
-#define UI_ACTION_EXTR_ACCELERATION     1066
-#define UI_ACTION_EXTR_MAX_FEEDRATE     1067
-#define UI_ACTION_EXTR_START_FEEDRATE   1068
-#define UI_ACTION_EXTR_HEATMANAGER      1069
-#define UI_ACTION_EXTR_WATCH_PERIOD     1070
-#define UI_ACTION_PID_MAX               1071
-#define UI_ACTION_ADVANCE_K             1072
-#define UI_ACTION_SET_ORIGIN            1073
+#define UI_ACTION_Z_OFFSET              1065
+#define UI_ACTION_EXTR_STEPS            1066
+#define UI_ACTION_EXTR_ACCELERATION     1067
+#define UI_ACTION_EXTR_MAX_FEEDRATE     1068
+#define UI_ACTION_EXTR_START_FEEDRATE   1069
+#define UI_ACTION_EXTR_HEATMANAGER      1070
+#define UI_ACTION_EXTR_WATCH_PERIOD     1071
+#define UI_ACTION_PID_MAX               1072
+#define UI_ACTION_ADVANCE_K             1073
+#define UI_ACTION_SET_ORIGIN            1074
 
 #define UI_ACTION_POWER                 1078
 #define UI_ACTION_PREHEAT_PLA           1079
@@ -702,7 +703,8 @@ void uiCheckSlowKeys(uint16_t &action) {}
 #define UI_STATUS_UPD(status) {uid.setStatusP(PSTR(status));uid.refreshPage();}
 #define UI_STATUS_UPD_F(status) {uid.setStatusP(status);uid.refreshPage();}
 #define UI_STATUS_RAM(status) uid.setStatus(status);
-#define UI_STATUS_UPD_RAM(status) {uid.setStatus(status);uid.refreshPage();}
+//#define UI_STATUS_UPD_RAM(status) {uid.setStatus(status);uid.refreshPage();}
+#define UI_STATUS_UPD_RAM(status) {uid.setStatus(status);}
 #define UI_ERROR(status) uid.setStatusP(PSTR(status),true);
 #define UI_ERROR_P(status) uid.setStatusP(status,true);
 #define UI_ERROR_UPD(status) {uid.setStatusP(PSTR(status),true);uid.refreshPage();}

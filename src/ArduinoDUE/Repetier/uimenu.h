@@ -161,6 +161,7 @@
   %Xl : Advance L value
   %Xx : x offset in steps
   %Xy : y offset in steps
+  %Xz : z offset in steps
   %Xf : Extruder max. start feedrate
   %XF : Extruder max. feedrate
   %XA : Extruder max. acceleration
@@ -889,8 +890,9 @@ UI_MENU_CHANGEACTION_T(ui_menu_cext_yoffset, UI_TEXT_EXTR_YOFF_ID, UI_ACTION_Y_O
 #elif NUM_EXTRUDER > 1 && MIXING_EXTRUDER == 0
 UI_MENU_CHANGEACTION_T(ui_menu_cext_xoffset, UI_TEXT_EXTR_XOFF_ID, UI_ACTION_X_OFFSET)
 UI_MENU_CHANGEACTION_T(ui_menu_cext_yoffset, UI_TEXT_EXTR_YOFF_ID, UI_ACTION_Y_OFFSET)
-#define UI_MENU_CONFEXTCOND &ui_menu_ext_sel0,&ui_menu_ext_sel1,&ui_menu_cext_xoffset,&ui_menu_cext_yoffset,
-#define UI_MENU_CONFEXTCNT 4
+UI_MENU_CHANGEACTION_T(ui_menu_cext_zoffset, UI_TEXT_EXTR_ZOFF_ID, UI_ACTION_Z_OFFSET)
+#define UI_MENU_CONFEXTCOND &ui_menu_ext_sel0,&ui_menu_ext_sel1,&ui_menu_cext_xoffset,&ui_menu_cext_yoffset,&ui_menu_cext_zoffset,
+#define UI_MENU_CONFEXTCNT 5
 #else
 #define UI_MENU_CONFEXTCOND
 #define UI_MENU_CONFEXTCNT 0

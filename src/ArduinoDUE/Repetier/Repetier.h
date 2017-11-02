@@ -775,7 +775,8 @@ extern volatile uint osAnalogInputValues[ANALOG_INPUTS];
 #define PWM_FAN2 PWM_FAN1+1
 #define PWM_FAN_THERMO PWM_FAN2+1
 #define NUM_PWM PWM_FAN_THERMO+1
-extern uint8_t pwm_pos[NUM_PWM]; // 0-NUM_EXTRUDER = Heater 0-NUM_EXTRUDER of extruder, NUM_EXTRUDER = Heated bed, NUM_EXTRUDER+1 Board fan, NUM_EXTRUDER+2 = Fan
+#define PWM_CASE_LIGHT NUM_PWM+1
+extern uint8_t pwm_pos[PWM_CASE_LIGHT + 1]; // 0-NUM_EXTRUDER = Heater 0-NUM_EXTRUDER of extruder, NUM_EXTRUDER = Heated bed, NUM_EXTRUDER+1 Board fan, NUM_EXTRUDER+2 = Fan
 #if USE_ADVANCE
 #if ENABLE_QUADRATIC_ADVANCE
 extern int maxadv;

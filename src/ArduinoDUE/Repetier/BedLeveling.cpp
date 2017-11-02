@@ -397,9 +397,16 @@ void Printer::finishProbing() {
     float oldOffZ = Printer::offsetZ;
     GCode::executeFString(Com::tZProbeEndScript);
     if(Extruder::current) {
-        Printer::offsetX = -Extruder::current->xOffset * Printer::invAxisStepsPerMM[X_AXIS];
-        Printer::offsetY = -Extruder::current->yOffset * Printer::invAxisStepsPerMM[Y_AXIS];
-        Printer::offsetZ = -Extruder::current->zOffset * Printer::invAxisStepsPerMM[Z_AXIS];
+        if(Extruder::current->id == 1)
+		{
+			Printer::offsetX = Extruder::current->xOffset * Printer::invAxisStepsPerMM[X_AXIS] + EXT1_X_OFFSET;
+		}
+		else
+		{
+			Printer::offsetX = Extruder::current->xOffset * Printer::invAxisStepsPerMM[X_AXIS];
+		}
+        Printer::offsetY = Extruder::current->yOffset * Printer::invAxisStepsPerMM[Y_AXIS];
+        Printer::offsetZ = Extruder::current->zOffset * Printer::invAxisStepsPerMM[Z_AXIS];
     }
     PrintLine::moveRelativeDistanceInSteps((Printer::offsetX - oldOffX) * Printer::axisStepsPerMM[X_AXIS],
                                            (Printer::offsetY - oldOffY) * Printer::axisStepsPerMM[Y_AXIS],

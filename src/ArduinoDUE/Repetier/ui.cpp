@@ -1352,7 +1352,17 @@ void UIDisplay::parse(const char *txt,bool ram)
             break;
 #if FAN_PIN > -1 && FEATURE_FAN_CONTROL
         case 'F': // FAN speed
-            if(c2 == 's') addInt(floor(Printer::getFanSpeed() * 100 / 255 + 0.5f), 3);
+            if(c2 == 's')
+			{
+				if(Extruder::current->id == 0)
+				{
+					addInt(floor(Printer::getFanSpeed() * 100 / 255 + 0.5f), 3);
+				}
+				else if(Extruder::current->id == 1)
+				{
+					addInt(floor(Printer::getFanSpeed() * 100 / 255 + 0.5f), 3);
+				}
+			}
             if(c2=='i') addStringP((Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND) ? ui_selected : ui_unselected);
             break;
 #endif
@@ -1369,7 +1379,7 @@ void UIDisplay::parse(const char *txt,bool ram)
         case 'l':
             if(c2 == 'a') addInt(lastAction,4);
 #if defined(CASE_LIGHTS_PIN) && CASE_LIGHTS_PIN >= 0
-            else if(c2 == 'o') addStringOnOff(READ(CASE_LIGHTS_PIN));        // Lights on/off
+            else if(c2 == 'o') addStringOnOff(pwm_pos[PWM_CASE_LIGHT] > 0);        // Lights on/off
 #endif
 #if FEATURE_AUTOLEVEL
             else if(c2 == 'l') addStringOnOff((Printer::isAutolevelActive()));        // Autolevel on/off
@@ -1635,6 +1645,12 @@ void UIDisplay::parse(const char *txt,bool ram)
             else if(c2=='y')
             {
                 addFloat(Extruder::current->yOffset * Printer::invAxisStepsPerMM[Y_AXIS], 3, 2);
+				Serial.println("Updated Y.");
+            }
+            else if(c2=='z')
+            {
+                addFloat(Extruder::current->zOffset * Printer::invAxisStepsPerMM[Z_AXIS], 3, 2);
+				Serial.println("Updated Z.");
             }
             else if(c2=='f')
             {
@@ -2394,49 +2410,66 @@ int UIDisplay::okAction(bool allowMoves)
             break;
         case UI_ACTION_WIZARD_BED_LEVEL:    // knob clicked callback
             bedLevelState++;
+            float cx, cy, cz;
             switch(bedLevelState)
             {
               case firstStage:
-                GCode::executeFString(PSTR("G28 X Y Z\n")); // home all
-                GCode::executeFString(PSTR("G1 Z8\n")); // lower bed to safe distance from nozzle
-                GCode::executeFString(PSTR("T0\n")); // select extruder 0, leaving extruder 1 in parking position
-                GCode::executeFString(PSTR("G0 X310 Y398 F6000\n")); // go to first level position
-                GCode::executeFString(PSTR("M400\n")); // wait until moving extruders completed
+                Printer::homeAxis(true, true, true);
+                Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, 8.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+                Commands::waitUntilEndOfAllMoves();
+                Extruder::selectExtruderById(0);
+                Printer::moveTo(310.0, 398.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+                Commands::waitUntilEndOfAllMoves();
+                Printer::updateCurrentPosition(true);
+                
                 popMenu(false);
                 pushMenu(&ui_wiz_manual_probe, true); // present menu to raise bed to extruder 0, and confirm by clicking
                 break;
               case secondStage:
-                Printer::setOrigin(0, 0, 5);
-                GCode::executeFString(PSTR("G1 Z8\n")); // lower bed to safe distance from nozzle
-                GCode::executeFString(PSTR("G0 X140 Y98 F6000\n")); // go to second level position
-                GCode::executeFString(PSTR("G1 Z5\n")); // raise bed to height of firstStage
-                GCode::executeFString(PSTR("M400\n")); // wait until moving extruders completed
+                Printer::realPosition(cx, cy, cz);
+                Extruder::current->zOffset += (int)((cz - 5) * Printer::axisStepsPerMM[Z_AXIS]);
+                EEPROM::storeDataIntoEEPROM();
+
+                Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, 8.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+                Printer::moveTo(140.0, 98.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+                Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, 5.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+                Commands::waitUntilEndOfAllMoves();
+                Printer::updateCurrentPosition(true);
+                
                 popMenu(false);
                 pushMenu(&ui_wiz_hardware_knob_left, true); // ask user to level with hardware knob under the bed, and confirm by clicking
                 break;
               case thirdStage:
-                GCode::executeFString(PSTR("G1 Z8\n")); // lower bed to safe distance from nozzle
-                GCode::executeFString(PSTR("G0 X480 F6000\n")); // go to third level position
-                GCode::executeFString(PSTR("G1 Z5\n")); // raise bed to height of firstStage
-                GCode::executeFString(PSTR("M400\n")); // wait until moving extruders completed
+                Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, 8.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+                Printer::moveTo(480.0, IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+                Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, 5.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+                Commands::waitUntilEndOfAllMoves();
+                Printer::updateCurrentPosition(true);
+                
                 popMenu(false);
                 pushMenu(&ui_wiz_hardware_knob_right, true); // ask user to level with hardware knob under the bed, and confirm by clicking
                 break;
              case secondNozzle:
-                GCode::executeFString(PSTR("G1 Z8\n")); // lower bed to safe distance from nozzle
-                GCode::executeFString(PSTR("T1\n")); // activate extruder 1
-                GCode::executeFString(PSTR("G0 X264 Y398 F6000\n")); //
-                GCode::executeFString(PSTR("M400\n")); // wait until moving extruders completed
+                Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, 8.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+                Commands::waitUntilEndOfAllMoves();
+                Extruder::selectExtruderById(1);
+                Printer::moveTo(310.0, 398.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+                Commands::waitUntilEndOfAllMoves();
+                Printer::updateCurrentPosition(true);
+                
                 popMenu(false);
                 pushMenu(&ui_wiz_manual_probe, true); // present menu to user asking to raise bed until second nozzle touches, and confirm by clicking
                 break;
               case finish:
-                // store zPosition extruder1
-                GCode::executeFString(PSTR("G90\n")); // set back to absolute positioning
-                GCode::executeFString(PSTR("G1 Z8\n")); // lower bed to safe distance from nozzle
-                // GCode::executeFString(PSTR("T0\n"));
-                // GCode::executeFString(PSTR("G1 X0 Y0\n"));
-                GCode::executeFString(PSTR("M400\n")); // wait until moving extruders completed
+                Printer::realPosition(cx, cy, cz);
+                Extruder::current->zOffset += (int)((cz - 5) * Printer::axisStepsPerMM[Z_AXIS]);
+                EEPROM::storeDataIntoEEPROM();
+                
+                Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, 8.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+                Commands::waitUntilEndOfAllMoves();
+                Extruder::selectExtruderById(0);
+                Commands::waitUntilEndOfAllMoves(); 
+
                 bedLevelState = stopped;
                 popMenu(true);
                 break;
@@ -2661,7 +2694,14 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
     switch(action)
     {
     case UI_ACTION_FANSPEED:
-        Commands::setFanSpeed(Printer::getFanSpeed() + increment * 3, true);
+		if(Extruder::current->id == 0)
+		{
+			Commands::setFanSpeed(Printer::getFanSpeed() + increment * 3, 0, true);
+		}
+		else if(Extruder::current->id == 1)
+		{
+			Commands::setFanSpeed(Printer::getFanSpeed() + increment * 3, 1, true);
+		}
         break;
     case UI_ACTION_XPOSITION:
         if(!allowMoves) return false;
@@ -2740,7 +2780,7 @@ ZPOS2:
         break;
     case UI_ACTION_EPOSITION:
         if(!allowMoves) return false;
-        PrintLine::moveRelativeDistanceInSteps(0,0,0,Printer::axisStepsPerMM[E_AXIS]*increment / Printer::extrusionFactor,UI_SET_EXTRUDER_FEEDRATE,true,false,false);
+        PrintLine::moveRelativeDistanceInSteps(0,0,0,Printer::axisStepsPerMM[E_AXIS] * increment * 0.5,UI_SET_EXTRUDER_FEEDRATE,true,false,false);
         Commands::printCurrentPosition(PSTR("UI_ACTION_EPOSITION "));
         break;
 #if FEATURE_RETRACTION
@@ -2982,11 +3022,15 @@ ZPOS2:
         break;
 #endif
     case UI_ACTION_X_OFFSET:
-        INCREMENT_MIN_MAX(Extruder::current->xOffset, 1, -99999, 99999);
+        INCREMENT_MIN_MAX(Extruder::current->xOffset, 10, -99999, 99999);
         Extruder::selectExtruderById(Extruder::current->id);
         break;
     case UI_ACTION_Y_OFFSET:
-        INCREMENT_MIN_MAX(Extruder::current->yOffset, 1, -99999, 99999);
+        INCREMENT_MIN_MAX(Extruder::current->yOffset, 10, -99999, 99999);
+        Extruder::selectExtruderById(Extruder::current->id);
+        break;
+    case UI_ACTION_Z_OFFSET:
+        INCREMENT_MIN_MAX(Extruder::current->zOffset, 51, -99999, 99999);
         Extruder::selectExtruderById(Extruder::current->id);
         break;
     case UI_ACTION_EXTR_STEPS:
@@ -3250,11 +3294,22 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
 #if NUM_EXTRUDER > 5
         case UI_ACTION_SELECT_EXTRUDER5:
 #endif
-            if(!allowMoves) return action;
-            Extruder::selectExtruderById(action - UI_ACTION_SELECT_EXTRUDER0);
-            currHeaterForSetup = &(Extruder::current->tempControl);
-            Printer::setMenuMode(MENU_MODE_FULL_PID, currHeaterForSetup->heatManager == 1);
-            Printer::setMenuMode(MENU_MODE_DEADTIME, currHeaterForSetup->heatManager == 3);
+//            if(!allowMoves) return action;
+//            Extruder::selectExtruderById(action - UI_ACTION_SELECT_EXTRUDER0);
+//            currHeaterForSetup = &(Extruder::current->tempControl);
+//            Printer::setMenuMode(MENU_MODE_FULL_PID, currHeaterForSetup->heatManager == 1);
+//            Printer::setMenuMode(MENU_MODE_DEADTIME, currHeaterForSetup->heatManager == 3);
+            switch(action - UI_ACTION_SELECT_EXTRUDER0)
+            {
+              case 0:
+                GCode::executeFString(PSTR("T0\n"));
+                break;
+              case 1:
+                GCode::executeFString(PSTR("T1\n"));
+                break;
+              default:
+                break;
+            }
             break;
 #if FEATURE_DITTO_PRINTING
         case UI_DITTO_0:
@@ -3335,20 +3390,34 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
         case UI_ACTION_FAN_25:
         case UI_ACTION_FAN_50:
         case UI_ACTION_FAN_75:
-            Commands::setFanSpeed((action - UI_ACTION_FAN_OFF) * 64, true);
+			if(Extruder::current->id == 0)
+			{
+				Commands::setFanSpeed((action - UI_ACTION_FAN_OFF) * 64, 0, true);
+			}
+			else if(Extruder::current->id == 1)
+			{
+				Commands::setFanSpeed((action - UI_ACTION_FAN_OFF) * 64, 1, true);
+			}
             break;
         case UI_ACTION_FAN_FULL:
-            Commands::setFanSpeed(255, true);
+			if(Extruder::current->id == 0)
+			{
+				Commands::setFanSpeed(255, 0, true);
+			}
+            else if(Extruder::current->id == 1)
+			{
+				Commands::setFanSpeed(255, 1, true);
+			}
             break;
         case UI_ACTION_FAN_SUSPEND:
         {
             static uint8_t lastFanSpeed = 255;
             if(Printer::getFanSpeed()==0)
-                Commands::setFanSpeed(lastFanSpeed, true);
+                Commands::setFanSpeed(lastFanSpeed, Extruder::current->id, true);
             else
             {
                 lastFanSpeed = Printer::getFanSpeed();
-                Commands::setFanSpeed(0, true);
+                Commands::setFanSpeed(0, Extruder::current->id, true);
             }
         }
         break;
@@ -3568,10 +3637,24 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
         }
         break;
         case UI_ACTION_FAN_UP:
-            Commands::setFanSpeed(Printer::getFanSpeed() + 32, true);
+			if(Extruder::current->id == 0)
+			{
+				Commands::setFanSpeed(Printer::getFanSpeed() + 32, 0, true);
+			}
+			else if(Extruder::current->id == 1)
+			{
+				Commands::setFanSpeed(Printer::getFanSpeed() + 32, 1, true);
+			}
             break;
         case UI_ACTION_FAN_DOWN:
-            Commands::setFanSpeed(Printer::getFanSpeed() - 32, true);
+			if(Extruder::current->id == 0)
+			{
+				Commands::setFanSpeed(Printer::getFanSpeed() - 32, 0, true);
+			}
+			else if(Extruder::current->id == 1)
+			{
+				Commands::setFanSpeed(Printer::getFanSpeed() - 32, 1, true);
+			}
             break;
         case UI_ACTION_KILL:
             Commands::emergencyStop();

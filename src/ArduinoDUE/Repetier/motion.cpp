@@ -75,7 +75,7 @@ int maxadv = 0;
 int maxadv2 = 0;
 float maxadvspeed = 0;
 #endif
-uint8_t pwm_pos[NUM_PWM]; // 0-NUM_EXTRUDER = Heater 0-NUM_EXTRUDER of extruder, NUM_EXTRUDER = Heated bed, NUM_EXTRUDER+1 Board fan, NUM_EXTRUDER+2 = Fan
+uint8_t pwm_pos[PWM_CASE_LIGHT + 1]; // 0-NUM_EXTRUDER = Heater 0-NUM_EXTRUDER of extruder, NUM_EXTRUDER = Heated bed, NUM_EXTRUDER+1 Board fan, NUM_EXTRUDER+2 = Fan
 volatile int waitRelax = 0; // Delay filament relax at the end of print, could be a simple timeout
 
 PrintLine PrintLine::lines[PRINTLINE_CACHE_SIZE]; ///< Cache for print moves.
@@ -1135,7 +1135,14 @@ int32_t PrintLine::bresenhamStep() // version for Cartesian printer
 #endif
         cur->updateAdvanceSteps(cur->vStart, 0, false);
 #endif
-        Printer::setFanSpeedDirectly(cur->secondSpeed);
+        if(Extruder::current->id == 0)
+        {
+          Printer::setFanSpeedDirectly(cur->secondSpeed, 0);
+        }
+        else
+        {
+          Printer::setFanSpeedDirectly(cur->secondSpeed, 1);
+        }
         return Printer::interval; // Wait an other 50% from last step to make the 100% full
     } // End cur=0
     cur->checkEndstops();
@@ -1280,7 +1287,14 @@ int32_t PrintLine::bresenhamStep() // version for Cartesian printer
         if(linesCount == 0)
         {
             UI_STATUS_F(Com::translatedF(UI_TEXT_IDLE_ID));
-            Printer::setFanSpeedDirectly(Printer::fanSpeed);
+            if(Extruder::current->id == 0)
+            {
+              Printer::setFanSpeedDirectly(Printer::fanSpeed, 0);
+            }
+            else
+            {
+              Printer::setFanSpeedDirectly(Printer::fanSpeed, 1);
+            }
         }
         interval = Printer::interval = interval >> 1; // 50% of time to next call to do cur=0
         DEBUG_MEMORY;

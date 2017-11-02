@@ -65,6 +65,7 @@ public:
     ufast8_t joinFlags;
     volatile ufast8_t flags;
     uint8_t secondSpeed; // for fan control
+    uint8_t second2Speed; // for fan control
 private:
     fast8_t primaryAxis;
     ufast8_t dir;                   ///< Direction of movement. 1 = X+, 2 = Y+, 4= Z+, values can be combined.

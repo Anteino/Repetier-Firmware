@@ -66,9 +66,9 @@ CPU_ARCH
 #define HEATER_2_PIN     12
 // Due analog pin #55
 #define TEMP_2_PIN       6
-#define HEATER_3_PIN     11
+#define HEATER_3_PIN     -1
 // Due analog pin #56
-#define TEMP_3_PIN       5
+#define TEMP_3_PIN       -1
 // Due analog pin #57
 #define TEMP_4_PIN       4
 

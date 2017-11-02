@@ -258,6 +258,7 @@ public:
 
     static uint8_t mode;
     static uint8_t fanSpeed; // Last fan speed set with M106/M107
+//    static uint8_t fan2Speed; // Last fan speed set with M106/M107
     static float zBedOffset;
     static uint8_t flag0,flag1; // 1 = stepper disabled, 2 = use external extruder interrupt, 4 = temp Sensor defect, 8 = homed
     static uint8_t flag2;
@@ -413,8 +414,8 @@ public:
         setDebugLevel(debugLevel & ~flags);
     }
     /** Sets the pwm for the fan speed. Gets called by motion control ot Commands::setFanSpeed. */
-    static void setFanSpeedDirectly(uint8_t speed);
-    static void setFan2SpeedDirectly(uint8_t speed);
+    static void setFanSpeedDirectly(uint8_t speed, uint8_t id);
+//    static void setFan2SpeedDirectly(uint8_t speed);
     /** \brief Disable stepper motor for x direction. */
     static INLINE void disableXStepper()
     {
@@ -1005,17 +1006,25 @@ public:
     static uint8_t setDestinationStepsFromGCode(GCode *com);
     static uint8_t moveTo(float x,float y,float z,float e,float f);
     static uint8_t moveToReal(float x,float y,float z,float e,float f,bool pathOptimize = true);
+    static void moveToAbsoluteQue(float x, float y, float z, float e, float f);
     static void homeAxis(bool xaxis,bool yaxis,bool zaxis); /// Home axis
     static void setOrigin(float xOff,float yOff,float zOff);
     static bool isPositionAllowed(float x,float y,float z);
     static INLINE int getFanSpeed()
     {
+      if(pwm_pos[PWM_FAN1] > pwm_pos[PWM_FAN2])
+      {
         return (int)pwm_pos[PWM_FAN1];
-    }
-    static INLINE int getFan2Speed()
-    {
+      }
+      else
+      {
         return (int)pwm_pos[PWM_FAN2];
+      }
     }
+//    static INLINE int getFan2Speed()
+//    {
+//        return (int)pwm_pos[PWM_FAN2];
+//    }
 #if MAX_HARDWARE_ENDSTOP_Z
     static float runZMaxProbe();
 #endif
@@ -1052,7 +1061,7 @@ public:
         return wizardStack[--wizardStackPos];
     }
     static void showConfiguration();
-    static void setCaseLight(bool on);
+    static void setCaseLight(int s);
     static void reportCaseLightStatus();
 #if JSON_OUTPUT
     static void showJSONStatus(int type);

@@ -212,29 +212,59 @@ uint8_t fanKickstart;
 uint8_t fan2Kickstart;
 #endif
 
-void Commands::setFanSpeed(int speed, bool immediately) {
-#if FAN_PIN >- 1 && FEATURE_FAN_CONTROL
-    if(Printer::fanSpeed == speed)
-        return;
-    speed = constrain(speed,0,255);
-    Printer::setMenuMode(MENU_MODE_FAN_RUNNING,speed != 0);
-    Printer::fanSpeed = speed;
-    if(PrintLine::linesCount == 0 || immediately) {
-        for(fast8_t i = 0; i < PRINTLINE_CACHE_SIZE; i++)
-            PrintLine::lines[i].secondSpeed = speed; // fill all printline buffers with new fan speed value
-        Printer::setFanSpeedDirectly(speed);
-    }
-    Com::printFLN(Com::tFanspeed,speed); // send only new values to break update loops!
-#endif
+void Commands::setFanSpeed(int speed, int id, bool immediately)
+{
+  speed = constrain(speed,0,255);
+  Printer::setMenuMode(MENU_MODE_FAN_RUNNING, speed != 0);
+  Printer::fanSpeed = speed;
+  if(PrintLine::linesCount == 0 || immediately)
+  {
+      for(fast8_t i = 0; i < PRINTLINE_CACHE_SIZE; i++)
+        if(id == 0)
+        {
+          PrintLine::lines[i].secondSpeed = speed; // fill all printline buffers with new fan speed value
+        }
+        else
+        {
+          PrintLine::lines[i].second2Speed = speed;
+        }
+      Printer::setFanSpeedDirectly(speed, id);
+      Printer::setFanSpeedDirectly(0, !id);
+  }
+  Com::printFLN(Com::tFanspeed,speed); // send only new values to break update loops!
 }
 
-void Commands::setFan2Speed(int speed) {
-#if FAN2_PIN >- 1 && FEATURE_FAN2_CONTROL
-    speed = constrain(speed,0,255);
-    Printer::setFan2SpeedDirectly(speed);
-    Com::printFLN(Com::tFan2speed,speed); // send only new values to break update loops!
-#endif
-}
+//void Commands::setFanSpeed(int speed, bool immediately) {
+//#if FAN_PIN >- 1 && FEATURE_FAN_CONTROL
+//    speed = constrain(speed,0,255);
+//    Printer::setMenuMode(MENU_MODE_FAN_RUNNING, speed != 0);
+//    Printer::fanSpeed = speed;
+//    Printer::fan2Speed = 0;
+//    if(PrintLine::linesCount == 0 || immediately) {
+//        for(fast8_t i = 0; i < PRINTLINE_CACHE_SIZE; i++)
+//            PrintLine::lines[i].secondSpeed = speed; // fill all printline buffers with new fan speed value
+//        Printer::setFanSpeedDirectly(speed);
+//        Printer::setFan2SpeedDirectly(0);
+//    }
+//    Com::printFLN(Com::tFanspeed,speed); // send only new values to break update loops!
+//#endif
+//}
+//
+//void Commands::setFan2Speed(int speed, bool immediately) {
+//#if FAN2_PIN >- 1 && FEATURE_FAN2_CONTROL
+//    speed = constrain(speed,0,255);
+//    Printer::setMenuMode(MENU_MODE_FAN_RUNNING,speed != 0);
+//    Printer::fanSpeed = 0;
+//    Printer::fan2Speed = speed;
+//    if(PrintLine::linesCount == 0 || immediately) {
+//        for(fast8_t i = 0; i < PRINTLINE_CACHE_SIZE; i++)
+//            PrintLine::lines[i].second2Speed = speed; // fill all printline buffers with new fan speed value
+//        Printer::setFan2SpeedDirectly(speed);
+//        Printer::setFanSpeedDirectly(0);
+//    }
+//    Com::printFLN(Com::tFan2speed,speed); // send only new values to break update loops!
+//#endif
+//}
 
 void Commands::reportPrinterUsage() {
 #if EEPROM_MODE != 0
@@ -595,13 +625,26 @@ void Commands::processGCode(GCode *com) {
 #endif
             break;
 #endif // FEATURE_RETRACTION
-        case 50028: { //G28 Home all Axis one at a time
-                uint8_t homeAllAxis = (com->hasNoXYZ() && !com->hasE());
+        case 28: { //G28 Home all Axis one at a time
+//                uint8_t homeAllAxis = (com->hasNoXYZ() && !com->hasE());
+//                if(com->hasE())
+//                    Printer::currentPositionSteps[E_AXIS] = 0;
+//                if(homeAllAxis || !com->hasNoXYZ())
+//                    Printer::homeAxis(homeAllAxis || com->hasX(),homeAllAxis || com->hasY(),homeAllAxis || com->hasZ());
+//                Printer::updateCurrentPosition();
+                uint8_t homeX = false, homeY = false;
                 if(com->hasE())
                     Printer::currentPositionSteps[E_AXIS] = 0;
-                if(homeAllAxis || !com->hasNoXYZ())
-                    Printer::homeAxis(homeAllAxis || com->hasX(),homeAllAxis || com->hasY(),homeAllAxis || com->hasZ());
-                Printer::updateCurrentPosition();
+                if(com->hasX())
+                {
+                  homeX = true;
+                  homeY = true;
+                }
+                else if(com->hasY())
+                {
+                  homeY = true;
+                }
+                Printer::homeAxis(homeX, homeY, com->hasZ());                
             }
             break;
 #if FEATURE_Z_PROBE
@@ -1145,19 +1188,19 @@ void Commands::processMCode(GCode *com) {
 #endif
 #if FAN_PIN > -1 && FEATURE_FAN_CONTROL
         case 106: // M106 Fan On
-            if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND)) {
-                if(com->hasP() && com->P == 1)
-                    setFan2Speed(com->hasS() ? com->S : 255);
-                else
-                    setFanSpeed(com->hasS() ? com->S : 255);
-            }
+//          if(Extruder::current->id == 0 && com->hasS())
+//          {
+//            setFanSpeed(com->S);
+//          }
+//          else if(Extruder::current->id == 1 && com->hasS())
+//          {
+//            setFan2Speed(com->S);
+//          }
+            setFanSpeed(com->S, Extruder::current->id, false);
             break;
         case 107: // M107 Fan Off
-            if(com->hasP() && com->P == 1)
-                setFan2Speed(0);
-            else
-                setFanSpeed(0);
-            break;
+            setFanSpeed(0, 0, false);
+            setFanSpeed(0, 1, false);
 #endif
         case 111: // M111 enable/disable run time debug flags
             if(com->hasS()) Printer::setDebugLevel(static_cast<uint8_t>(com->S));
@@ -1355,7 +1398,7 @@ void Commands::processMCode(GCode *com) {
             Printer::homeXAxis();
             if(com->hasS() && com->S > 0) {
                 Extruder::current = &extruder[1];
-                PrintLine::moveRelativeDistanceInSteps(-Extruder::current->xOffset + static_cast<int32_t>(Printer::xLength*0.5*Printer::axisStepsPerMM[X_AXIS]), 0, 0, 0, EXTRUDER_SWITCH_XY_SPEED, true, true);
+                PrintLine::moveRelativeDistanceInSteps(Extruder::current->xOffset + static_cast<int32_t>(Printer::xLength*0.5*Printer::axisStepsPerMM[X_AXIS]), 0, 0, 0, EXTRUDER_SWITCH_XY_SPEED, true, true);
                 Printer::currentPositionSteps[X_AXIS] = Printer::xMinSteps;
                 Extruder::current = &extruder[0];
                 Extruder::dittoMode = 1;
@@ -1465,11 +1508,15 @@ void Commands::processMCode(GCode *com) {
 #endif
             }
             break;
-        case 355: // M355 S<0/1> - Turn case light on/off, no S = report status
-            if(com->hasS()) {
+        case 355: // M355 S<0-255> - PWM case light
+            if(com->hasS())
+            {
                 Printer::setCaseLight(com->S);
-            } else
-                Printer::reportCaseLightStatus();
+            }
+//            else
+//            {
+//                Printer::reportCaseLightStatus();
+//            }
             break;
         case 360: // M360 - show configuration
             Printer::showConfiguration();
@@ -1649,7 +1696,7 @@ void Commands::executeGCode(GCode *com) {
         //com->printCommand(); // for testing if this the source of extruder switches
         Commands::waitUntilEndOfAllMoves();
         Extruder::selectExtruderById(com->T);
-        SelectExtruder500XL(com->T);
+//        SelectExtruder500XL(com->T);
     } else {
         if(Printer::debugErrors()) {
             Com::printF(Com::tUnknownCommand);

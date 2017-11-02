@@ -788,6 +788,9 @@ void TIMER1_COMPA_VECTOR ()
 #define COOLER_PWM_MASK 252
 #endif
 
+#define CASE_LIGHT_PWM_MASK 255
+#define CASE_LIGHT_PWM_STEP 1
+
 #define pulseDensityModulate( pin, density,error,invert) {uint8_t carry;carry = error + (invert ? 255 - density : density); WRITE(pin, (carry < error)); error = carry;}
 
 /**
@@ -801,8 +804,9 @@ void PWM_TIMER_VECTOR ()
   TC_GetStatus(PWM_TIMER, PWM_TIMER_CHANNEL);
 
   static uint8_t pwm_count_cooler = 0;
+  static uint8_t pwm_count_case_light = 0;
   static uint8_t pwm_count_heater = 0;
-  static uint8_t pwm_pos_set[NUM_PWM];
+  static uint8_t pwm_pos_set[PWM_CASE_LIGHT + 1];
   static uint8_t pwm_cooler_pos_set[NUM_EXTRUDER];
 
   if (pwm_count_heater == 0 && !PDM_FOR_EXTRUDER)

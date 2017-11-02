@@ -440,7 +440,7 @@ for temperature reading.
 void Extruder::initExtruder()
 {
     uint8_t i;
-    Extruder::current = &extruder[0];
+    Extruder::current = &extruder[1];
 #ifdef USE_GENERIC_THERMISTORTABLE_1
     createGenericTable(temptable_generic1,GENERIC_THERM1_MIN_TEMP,GENERIC_THERM1_MAX_TEMP,GENERIC_THERM1_BETA,GENERIC_THERM1_R0,GENERIC_THERM1_T0,GENERIC_THERM1_R1,GENERIC_THERM1_R2);
 #endif
@@ -554,6 +554,10 @@ This function changes and initializes a new extruder. This is also called, after
 */
 void Extruder::selectExtruderById(uint8_t extruderId)
 {
+	if(extruderId == Extruder::current->id)
+	{
+		return;
+	}
 #if NUM_EXTRUDER > 0
     if(extruderId >= NUM_EXTRUDER)
         extruderId = 0;
@@ -578,12 +582,6 @@ void Extruder::selectExtruderById(uint8_t extruderId)
     Printer::realPosition(cx, cy, cz);
     float oldfeedrate = Printer::feedrate;
     Extruder::current->extrudePosition = Printer::currentPositionSteps[E_AXIS];
-#if DUAL_X_AXIS
-    // Park current extruder
-    int32_t dualXPos = Printer::currentPositionSteps[X_AXIS] - Printer::xMinSteps;
-    if(Printer::isHomed())
-        PrintLine::moveRelativeDistanceInSteps(Extruder::current->xOffset - dualXPos, 0, 0, 0, EXTRUDER_SWITCH_XY_SPEED, true, false);
-#endif	
     Extruder::current = &extruder[extruderId];
 #ifdef SEPERATE_EXTRUDER_POSITIONS
     // Use separate extruder positions only if being told. Slic3r e.g. creates a continuous extruder position increment
@@ -610,29 +608,24 @@ void Extruder::selectExtruderById(uint8_t extruderId)
     if(fmax < Printer::maxFeedrate[E_AXIS]) Printer::maxFeedrate[E_AXIS] = fmax;
 #endif
     Extruder::current->tempControl.updateTempControlVars();
-#if DUAL_X_AXIS
-    // Unpark new current extruder
-    if(executeSelect) {// Run only when changing
-        Commands::waitUntilEndOfAllMoves();
-        Printer::updateCurrentPosition(true);
-        GCode::executeFString(Extruder::current->selectCommands);
-        executeSelect = false;
-    }
-    Printer::currentPositionSteps[X_AXIS] = Extruder::current->xOffset - dualXPos;
-    if(Printer::isHomed())
-        PrintLine::moveRelativeDistanceInSteps(-Extruder::current->xOffset + dualXPos, 0, 0, 0, EXTRUDER_SWITCH_XY_SPEED, true, false);
-    Printer::currentPositionSteps[X_AXIS] = dualXPos + Printer::xMinSteps;
-    Printer::offsetX = 0;
-    Printer::updateCurrentPosition(true);
-#else	
-    Printer::offsetX = -Extruder::current->xOffset * Printer::invAxisStepsPerMM[X_AXIS];
-#endif
-    Printer::offsetY = -Extruder::current->yOffset * Printer::invAxisStepsPerMM[Y_AXIS];
-    Printer::offsetZ = -Extruder::current->zOffset * Printer::invAxisStepsPerMM[Z_AXIS];
+    //  <---->
+	if(Extruder::current->id == 1)
+	{
+		Printer::offsetX = Extruder::current->xOffset * Printer::invAxisStepsPerMM[X_AXIS] + EXT1_X_OFFSET;
+	}
+	else
+	{
+		Printer::offsetX = Extruder::current->xOffset * Printer::invAxisStepsPerMM[X_AXIS];
+	}
+    Printer::offsetY = Extruder::current->yOffset * Printer::invAxisStepsPerMM[Y_AXIS];
+    Printer::offsetZ = Extruder::current->zOffset * Printer::invAxisStepsPerMM[Z_AXIS];
+    Serial.println("Z-Offset: " + String(Extruder::current->zOffset));
+    //  <---->
     Commands::changeFlowrateMultiply(Printer::extrudeMultiply); // needed to adjust extrusionFactor to possibly different diameter
     if(Printer::isHomed()) {
         Printer::moveToReal(cx, cy, cz, IGNORE_COORDINATE, EXTRUDER_SWITCH_XY_SPEED);
     }
+    
     Printer::feedrate = oldfeedrate;
     Printer::updateCurrentPosition();
 #if USE_ADVANCE
@@ -646,6 +639,37 @@ void Extruder::selectExtruderById(uint8_t extruderId)
     }
 #endif
 #endif
+  if(!Printer::isHomed())
+  {
+    Printer::moveToAbsoluteQue(IGNORE_COORDINATE, IGNORE_COORDINATE, 1, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+    Commands::waitUntilEndOfAllMoves();
+    Printer::homeAxis(true, true, false);
+  }
+  Printer::currentPositionSteps[E_AXIS] = 0;
+  if(extruderId == 0)
+  {
+    Commands::setFanSpeed(Printer::fanSpeed, 0, false);
+    Printer::moveToAbsoluteQue(574.0, 496.0, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] + 2.0, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+    Printer::setNoDestinationCheck(true);
+    Printer::moveToAbsoluteQue(574.0, 506.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+    Printer::moveToAbsoluteQue(564.0, 506.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+    Printer::setNoDestinationCheck(false);
+    Printer::moveToAbsoluteQue(564.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+    Printer::moveToAbsoluteQue(0.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+    Printer::moveToAbsoluteQue(0.0, 496.0, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] - 2.0, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+  }
+  else if(extruderId = 1)
+  {
+    Commands::setFanSpeed(Printer::fanSpeed, 1, false);
+    Printer::moveToAbsoluteQue(0.0, 496.0, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] + 2.0, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+    Printer::setNoDestinationCheck(true);
+    Printer::moveToAbsoluteQue(0.0, 506.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+    Printer::moveToAbsoluteQue(10.0, 506.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+    Printer::setNoDestinationCheck(false);
+    Printer::moveToAbsoluteQue(10.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+    Printer::moveToAbsoluteQue(574.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+    Printer::moveToAbsoluteQue(574.0, 496.0, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] - 2.0, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
+  }
 }
 
 void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t extr, bool beep, bool wait)

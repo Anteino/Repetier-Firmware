@@ -98,7 +98,7 @@
 #define LANGUAGE_FI_ID 11
 
 #define NUM_LANGUAGES_KNOWN 12
-#define NUM_TRANSLATED_WORDS 285
+#define NUM_TRANSLATED_WORDS 286
 
 // For selectable translations we refer to each text by a id which gets
 // defined here. The list starts at 0 and defines the position in the
@@ -216,7 +216,7 @@
 #define UI_TEXT_ACTION_ZPOSITION_FAST4C_ID 109 // "Max endstop:%sZ"
 #define UI_TEXT_ACTION_ZPOSITION_FAST4D_ID 110 // ""
 #define UI_TEXT_ACTION_EPOSITION_FAST2A_ID 111 // "E:%x3 mm"
-#define UI_TEXT_ACTION_EPOSITION_FAST2B_ID 112 // "1 click = 1 mm"
+#define UI_TEXT_ACTION_EPOSITION_FAST2B_ID 112 // "1 click = 0.5 mm"
 #define UI_TEXT_ACTION_XPOSITION2A_ID 113 // "X:%x0 mm"
 #define UI_TEXT_ACTION_XPOSITION2B_ID 114 // "Min:%sx Max:%sX"
 #define UI_TEXT_ACTION_YPOSITION2A_ID 115 // "Y:%x1 mm"
@@ -262,134 +262,136 @@
 #define UI_TEXT_EXTR_PMAX_ID 155 //         "PID Max:%XD"
 #define UI_TEXT_EXTR_XOFF_ID 156 //         "X-Offset:%Xx"
 #define UI_TEXT_EXTR_YOFF_ID 157 //         "Y-Offset:%Xy"
-#define UI_TEXT_STRING_HM_BANGBANG_ID 158 // "BangBang"
-#define UI_TEXT_STRING_HM_PID_ID 159 //     "PID"
-#define UI_TEXT_STRING_ACTION_ID 160 //     "Action:%la"
-#define UI_TEXT_HEATING_EXTRUDER_ID 161//  "Heating Extruder"
-#define UI_TEXT_HEATING_BED_ID 162 //       "Heating Bed"
-#define UI_TEXT_KILLED_ID 163 //            "Killed"
-#define UI_TEXT_STEPPER_DISABLED_ID 164 //  "Stepper Disabled"
-#define UI_TEXT_EEPROM_STOREDA_ID 165 //     "Configuration"
-#define UI_TEXT_EEPROM_STOREDB_ID 166 //     "stored in EEPROM"
-#define UI_TEXT_EEPROM_LOADEDA_ID 167 //     "Configuration"
-#define UI_TEXT_EEPROM_LOADEDB_ID 168 //     "loaded f. EEPROM"
-#define UI_TEXT_UPLOADING_ID 169 //         "Uploading..."
-#define UI_TEXT_PAGE_BUFFER_ID 170 //       "Buffer:%oB"
-#define UI_TEXT_PAGE_EXTRUDER_ID 171 //     " E:%ec/%Ec" cDEG "C" cARROW "%oC"
-#define UI_TEXT_PAGE_EXTRUDER1_ID 172 //     "E1:%e0/%E0" cDEG "C" cARROW "%o0"
-#define UI_TEXT_PAGE_EXTRUDER2_ID 173 //     "E2:%e1/%E1" cDEG "C" cARROW "%o1"
-#define UI_TEXT_PAGE_EXTRUDER3_ID 174 //     "E3:%e2/%E2" cDEG "C" cARROW "%o2"
-#define UI_TEXT_PAGE_BED_ID 175 //          " B:%eb/%Eb" cDEG "C" cARROW "%ob"
-#define UI_TEXT_SPEED_MULTIPLY_ID 176 //    "Speed Mul.:%om%%%"
-#define UI_TEXT_FLOW_MULTIPLY_ID 177 //     "Flow Mul. :%of%%%"
-#define UI_TEXT_SHOW_MEASUREMENT_ID 178 //  "Show meas."
-#define UI_TEXT_RESET_MEASUREMENT_ID 179 // "Reset meas."
-#define UI_TEXT_SET_MEASURED_ORIGIN_ID 180 // "Set Z=0"
-#define UI_TEXT_ZCALIB_ID 181 //             "Z Calib."
-#define UI_TEXT_SET_P1_ID 182 //            "Set P1"
-#define UI_TEXT_SET_P2_ID 183 //            "Set P2"
-#define UI_TEXT_SET_P3_ID 184 //            "Set P3"
-#define UI_TEXT_CALCULATE_LEVELING_ID 185 // "Calculate Leveling"
-#define UI_TEXT_LEVEL_ID 186 //             "Level delta"
-#define UI_TEXT_EXTR_WAIT_RETRACT_TEMP_ID 187 // "Wait Temp. %XT" cDEG "C"
-#define UI_TEXT_EXTR_WAIT_RETRACT_UNITS_ID 188 // "Wait Units: %XU mm"
-#define UI_TEXT_SD_REMOVED_ID 189 //       "SD Card removed"
-#define UI_TEXT_SD_INSERTED_ID 190 //      "SD Card inserted"
-#define UI_TEXT_PRINTER_READY_ID 191 //    "Printer ready."
+#define UI_TEXT_EXTR_ZOFF_ID 158 //         "Z-Offset:%Xz"
+#define UI_TEXT_STRING_HM_BANGBANG_ID 159 // "BangBang"
+#define UI_TEXT_STRING_HM_PID_ID 160 //     "PID"
+#define UI_TEXT_STRING_ACTION_ID 161 //     "Action:%la"
+#define UI_TEXT_HEATING_EXTRUDER_ID 162//  "Heating Extruder"
+#define UI_TEXT_HEATING_BED_ID 163 //       "Heating Bed"
+#define UI_TEXT_KILLED_ID 164 //            "Killed"
+#define UI_TEXT_STEPPER_DISABLED_ID 165 //  "Stepper Disabled"
+#define UI_TEXT_EEPROM_STOREDA_ID 166 //     "Configuration"
+#define UI_TEXT_EEPROM_STOREDB_ID 167 //     "stored in EEPROM"
+#define UI_TEXT_EEPROM_LOADEDA_ID 168 //     "Configuration"
+#define UI_TEXT_EEPROM_LOADEDB_ID 169 //     "loaded f. EEPROM"
+#define UI_TEXT_UPLOADING_ID 170 //         "Uploading..."
+#define UI_TEXT_PAGE_BUFFER_ID 171 //       "Buffer:%oB"
+#define UI_TEXT_PAGE_EXTRUDER_ID 172 //     " E:%ec/%Ec" cDEG "C" cARROW "%oC"
+#define UI_TEXT_PAGE_EXTRUDER1_ID 173 //     "E1:%e0/%E0" cDEG "C" cARROW "%o0"
+#define UI_TEXT_PAGE_EXTRUDER2_ID 174 //     "E2:%e1/%E1" cDEG "C" cARROW "%o1"
+#define UI_TEXT_PAGE_EXTRUDER3_ID 175 //     "E3:%e2/%E2" cDEG "C" cARROW "%o2"
+#define UI_TEXT_PAGE_BED_ID 176 //          " B:%eb/%Eb" cDEG "C" cARROW "%ob"
+#define UI_TEXT_SPEED_MULTIPLY_ID 177 //    "Speed Mul.:%om%%%"
+#define UI_TEXT_FLOW_MULTIPLY_ID 178 //     "Flow Mul. :%of%%%"
+#define UI_TEXT_SHOW_MEASUREMENT_ID 179 //  "Show meas."
+#define UI_TEXT_RESET_MEASUREMENT_ID 180 // "Reset meas."
+#define UI_TEXT_SET_MEASURED_ORIGIN_ID 181 // "Set Z=0"
+#define UI_TEXT_ZCALIB_ID 182 //             "Z Calib."
+#define UI_TEXT_SET_P1_ID 183 //            "Set P1"
+#define UI_TEXT_SET_P2_ID 184 //            "Set P2"
+#define UI_TEXT_SET_P3_ID 185 //            "Set P3"
+#define UI_TEXT_CALCULATE_LEVELING_ID 186 // "Calculate Leveling"
+#define UI_TEXT_LEVEL_ID 187 //             "Level delta"
+#define UI_TEXT_EXTR_WAIT_RETRACT_TEMP_ID 188 // "Wait Temp. %XT" cDEG "C"
+#define UI_TEXT_EXTR_WAIT_RETRACT_UNITS_ID 189 // "Wait Units: %XU mm"
+#define UI_TEXT_SD_REMOVED_ID 190 //       "SD Card removed"
+#define UI_TEXT_SD_INSERTED_ID 191 //      "SD Card inserted"
+#define UI_TEXT_PRINTER_READY_ID 192 //    "Printer ready."
 // Printtime output gets aggregated like <Days_5gisgits>UI_TEXT_PRINTTIME_DAYS<Hours>UI_TEXT_PRINTTIME_HOURS<Minutes>UI_TEXT_PRINTTIME_MINUTES
 // ___88 days 12:45
-#define UI_TEXT_PRINTTIME_DAYS_ID 192 //   " days "
-#define UI_TEXT_PRINTTIME_HOURS_ID 193 //  ":"
-#define UI_TEXT_PRINTTIME_MINUTES_ID 194 // ""
-#define UI_TEXT_PRINT_TIME_ID 195 //     "Printing time"
-#define UI_TEXT_PRINT_FILAMENT_ID 196 // "Filament printed"
-#define UI_TEXT_PRINTED_ID 197 //           "printed"
-#define UI_TEXT_POWER_ID 198 //            "ATX power on/off"
-#define UI_TEXT_STRING_HM_DEADTIME_ID 199 //     "Dead Time"
-#define UI_TEXT_STRING_HM_SLOWBANG_ID 200 //     "SlowBang"
-#define UI_TEXT_STOP_PRINT_ID 201 // "Stop Print"
-#define UI_TEXT_Z_BABYSTEPPING_ID 202 // "Z Babystep.:%oYmm"
-#define UI_TEXT_CHANGE_FILAMENT_ID 203 // "Change filament"
-#define UI_TEXT_WIZ_CH_FILAMENT1_ID 204 // "Change filament"
-#define UI_TEXT_WIZ_CH_FILAMENT2_ID 205 // "Rotate to move"
-#define UI_TEXT_WIZ_CH_FILAMENT3_ID 206 // "filament up/down"
-#define UI_TEXT_CLICK_DONE_ID 207 // "Click when done"
-#define UI_TEXT_AUTOLEVEL_ONOFF_ID 208 //  "Autolevel: %ll"
-#define UI_TEXT_SERVOPOS_ID 209 // "Servo pos.: %oS"
-#define UI_TEXT_IGNORE_M106_ID 210 //      "Ignore M106 cmd %Fi"
-#define UI_TEXT_WIZ_REHEAT1_ID 211 // "Click to reheat"
-#define UI_TEXT_WIZ_REHEAT2_ID 212 // "extruders."
-#define UI_TEXT_WIZ_WAITTEMP1_ID 213 // "Wait for target"
-#define UI_TEXT_WIZ_WAITTEMP2_ID 214 // "temperatures ..."
-#define UI_TEXT_EXTRUDER_JAM_ID 215 // "Extruder Jam"
-#define UI_TEXT_STANDBY_ID 216 // "Standby"
-#define UI_TEXT_BED_COATING_ID 217 // "Bed Coating"
-#define UI_TEXT_BED_COATING_SET1_ID 218 // "Bed coating set to",""
-#define UI_TEXT_BED_COATING_SET2_ID 219 // "Bed coating set to",""
-#define UI_TEXT_NOCOATING_ID 220 // "No Coating"
-#define UI_TEXT_BUILDTAK_ID 221 // "BuildTak"
-#define UI_TEXT_KAPTON_ID 222 // "Kapton"
-#define UI_TEXT_BLUETAPE_ID 223 // "Blue Paper Tape"
-#define UI_TEXT_PETTAPE_ID 224 // "Green PET Tape"
-#define UI_TEXT_GLUESTICK_ID 225 // "Glue Stick"
-#define UI_TEXT_CUSTOM_ID 226 // "Custom"
-#define UI_TEXT_COATING_CUSTOM_ID 227 // "Custom : %oCmm"
-#define UI_TEXT_LANGUAGE_ID 228 // "Language"
-#define UI_TEXT_MAINPAGE6_1_ID 229 //"\xa %e0/%E0\xb0 X:%x0"
-#define UI_TEXT_MAINPAGE6_2_ID 230 //"\xa %e1/%E1\xb0 Y:%x1"
-#define UI_TEXT_MAINPAGE6_3_ID 231 //"\xe %eb/%Eb\xb0 Z:%x2",
-#define UI_TEXT_MAINPAGE6_4_ID 232 //"Mul: %om%%% \xfd   E: %x4m"
-#define UI_TEXT_MAINPAGE6_5_ID 233 //"Buf: %oB"
-#define UI_TEXT_MAINPAGE6_6_ID 234 //"%os"
-#define UI_TEXT_MAINPAGE_TEMP_BED_ID 235 //cTEMP "%ec/%Ec" cDEG "B%eB/%Eb" cDEG
-#define UI_TEXT_MAINPAGE_BED_ID 236 //"B%eB/%Eb" cDEG
-#define UI_TEXT_MAINPAGE_Z_BUF_ID 237 //"Z:%x2  Buf : %oB"
-#define UI_TEXT_MAINPAGE_MUL_EUSAGE_ID 238 //"Mul: %om   E:%x4"
-#define UI_TEXT_MAINPAGE_XY_ID 239 //"X:%x0 Y:%x1"
-#define UI_TEXT_PRINT_TIME_VALUE_ID 240 //"%Ut"
-#define UI_TEXT_PRINT_FILAMENT_VALUE_ID 241 //"%Uf m"
-#define UI_TEXT_METER_PRINTED_ID 242 //"%Uf m " UI_TEXT_PRINTED
-#define UI_TEXT_STATUS_ID 243 //"%os"
-#define UI_TEXT_EMPTY_ID 244 //""
-#define UI_TEXT_TEMP_SET_ID 245 //cTEMP "%ec/%Ec" cDEG
-#define UI_TEXT_CURRENT_TEMP_ID 246 //cTEMP "%ec" cDEG
-#define UI_TEXT_COATING_THICKNESS_ID 247 //" %oCmm"
-#define UI_TEXT_EXTR3_TEMP_ID 248 // "Temp. 4 : %E3" cDEG "C"
-#define UI_TEXT_EXTR4_TEMP_ID 249 // "Temp. 5 : %E4" cDEG "C"
-#define UI_TEXT_EXTR5_TEMP_ID 250 // "Temp. 6 : %E5" cDEG "C"
-#define UI_TEXT_EXTR3_OFF_ID 251
-#define UI_TEXT_EXTR4_OFF_ID 252
-#define UI_TEXT_EXTR5_OFF_ID 253
-#define UI_TEXT_EXTR3_SELECT_ID 254
-#define UI_TEXT_EXTR4_SELECT_ID 255
-#define UI_TEXT_EXTR5_SELECT_ID 256
-#define UI_TEXT_DITTO_0_ID 257
-#define UI_TEXT_DITTO_1_ID 258
-#define UI_TEXT_DITTO_2_ID 259
-#define UI_TEXT_DITTO_3_ID 260
-#define UI_TEXT_ZPROBE_HEIGHT_ID 261
-#define UI_TEXT_OFFSETS_ID 262
-#define UI_TEXT_X_OFFSET_ID 263
-#define UI_TEXT_Y_OFFSET_ID 264
-#define UI_TEXT_Z_OFFSET_ID 265
-#define UI_TEXT_DBG_ENDSTOP_ID 266 //     "EndStop:%dp"
-#define UI_TEXT_BED_LEVEL_ID 267
-#define UI_TEXT_WIZ_BED_LEVEL1_ID 268
-#define UI_TEXT_WIZ_BED_LEVEL2_ID 269
-#define UI_TEXT_WIZ_BED_LEVEL3_ID 270
-#define UI_TEXT_WIZ_BED_LEVEL4_ID 271
-#define UI_TEXT_WIZ_MANUAL_PROBE1_ID 272
-#define UI_TEXT_WIZ_MANUAL_PROBE2_ID 273
-#define UI_TEXT_WIZ_MANUAL_PROBE3_ID 274
-#define UI_TEXT_WIZ_MANUAL_PROBE4_ID 275
-#define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT1_ID 276
-#define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT2_ID 277
-#define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT3_ID 278
-#define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT4_ID 279
-#define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT1_ID 280
-#define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT2_ID 281
-#define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT3_ID 282
-#define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT4_ID 283
+#define UI_TEXT_PRINTTIME_DAYS_ID 193 //   " days "
+#define UI_TEXT_PRINTTIME_HOURS_ID 194 //  ":"
+#define UI_TEXT_PRINTTIME_MINUTES_ID 195 // ""
+#define UI_TEXT_PRINT_TIME_ID 196 //     "Printing time"
+#define UI_TEXT_PRINT_FILAMENT_ID 197 // "Filament printed"
+#define UI_TEXT_PRINTED_ID 198 //           "printed"
+#define UI_TEXT_POWER_ID 199 //            "ATX power on/off"
+#define UI_TEXT_STRING_HM_DEADTIME_ID 200 //     "Dead Time"
+#define UI_TEXT_STRING_HM_SLOWBANG_ID 201 //     "SlowBang"
+#define UI_TEXT_STOP_PRINT_ID 202 // "Stop Print"
+#define UI_TEXT_Z_BABYSTEPPING_ID 203 // "Z Babystep.:%oYmm"
+#define UI_TEXT_CHANGE_FILAMENT_ID 204 // "Change filament"
+#define UI_TEXT_WIZ_CH_FILAMENT1_ID 205 // "Change filament"
+#define UI_TEXT_WIZ_CH_FILAMENT2_ID 206 // "Rotate to move"
+#define UI_TEXT_WIZ_CH_FILAMENT3_ID 207 // "filament up/down"
+#define UI_TEXT_CLICK_DONE_ID 208 // "Click when done"
+#define UI_TEXT_AUTOLEVEL_ONOFF_ID 209 //  "Autolevel: %ll"
+#define UI_TEXT_SERVOPOS_ID 210 // "Servo pos.: %oS"
+#define UI_TEXT_IGNORE_M106_ID 211 //      "Ignore M106 cmd %Fi"
+#define UI_TEXT_WIZ_REHEAT1_ID 212 // "Click to reheat"
+#define UI_TEXT_WIZ_REHEAT2_ID 213 // "extruders."
+#define UI_TEXT_WIZ_WAITTEMP1_ID 214 // "Wait for target"
+#define UI_TEXT_WIZ_WAITTEMP2_ID 215 // "temperatures ..."
+#define UI_TEXT_EXTRUDER_JAM_ID 216 // "Extruder Jam"
+#define UI_TEXT_STANDBY_ID 217 // "Standby"
+#define UI_TEXT_BED_COATING_ID 218 // "Bed Coating"
+#define UI_TEXT_BED_COATING_SET1_ID 219 // "Bed coating set to",""
+#define UI_TEXT_BED_COATING_SET2_ID 220 // "Bed coating set to",""
+#define UI_TEXT_NOCOATING_ID 221 // "No Coating"
+#define UI_TEXT_BUILDTAK_ID 222 // "BuildTak"
+#define UI_TEXT_KAPTON_ID 223 // "Kapton"
+#define UI_TEXT_BLUETAPE_ID 224 // "Blue Paper Tape"
+#define UI_TEXT_PETTAPE_ID 225 // "Green PET Tape"
+#define UI_TEXT_GLUESTICK_ID 226 // "Glue Stick"
+#define UI_TEXT_CUSTOM_ID 227 // "Custom"
+#define UI_TEXT_COATING_CUSTOM_ID 228 // "Custom : %oCmm"
+#define UI_TEXT_LANGUAGE_ID 229 // "Language"
+#define UI_TEXT_MAINPAGE6_1_ID 230 //"\xa %e0/%E0\xb0 X:%x0"
+#define UI_TEXT_MAINPAGE6_2_ID 231 //"\xa %e1/%E1\xb0 Y:%x1"
+#define UI_TEXT_MAINPAGE6_3_ID 232 //"\xe %eb/%Eb\xb0 Z:%x2",
+#define UI_TEXT_MAINPAGE6_4_ID 233 //"Mul: %om%%% \xfd   E: %x4m"
+#define UI_TEXT_MAINPAGE6_5_ID 234 //"Buf: %oB"
+#define UI_TEXT_MAINPAGE6_6_ID 235 //"%os"
+#define UI_TEXT_MAINPAGE_TEMP_BED_ID 236 //cTEMP "%ec/%Ec" cDEG "B%eB/%Eb" cDEG
+#define UI_TEXT_MAINPAGE_BED_ID 237 //"B%eB/%Eb" cDEG
+#define UI_TEXT_MAINPAGE_Z_BUF_ID 238 //"Z:%x2  Buf : %oB"
+#define UI_TEXT_MAINPAGE_MUL_EUSAGE_ID 239 //"Mul: %om   E:%x4"
+#define UI_TEXT_MAINPAGE_XY_ID 240 //"X:%x0 Y:%x1"
+#define UI_TEXT_PRINT_TIME_VALUE_ID 241 //"%Ut"
+#define UI_TEXT_PRINT_FILAMENT_VALUE_ID 242 //"%Uf m"
+#define UI_TEXT_METER_PRINTED_ID 243 //"%Uf m " UI_TEXT_PRINTED
+#define UI_TEXT_STATUS_ID 244 //"%os"
+#define UI_TEXT_EMPTY_ID 245 //""
+#define UI_TEXT_TEMP_SET_ID 246 //cTEMP "%ec/%Ec" cDEG
+#define UI_TEXT_CURRENT_TEMP_ID 247 //cTEMP "%ec" cDEG
+#define UI_TEXT_COATING_THICKNESS_ID 248 //" %oCmm"
+#define UI_TEXT_EXTR3_TEMP_ID 249 // "Temp. 4 : %E3" cDEG "C"
+#define UI_TEXT_EXTR4_TEMP_ID 250 // "Temp. 5 : %E4" cDEG "C"
+#define UI_TEXT_EXTR5_TEMP_ID 251 // "Temp. 6 : %E5" cDEG "C"
+#define UI_TEXT_EXTR3_OFF_ID 252
+#define UI_TEXT_EXTR4_OFF_ID 253
+#define UI_TEXT_EXTR5_OFF_ID 254
+#define UI_TEXT_EXTR3_SELECT_ID 255
+#define UI_TEXT_EXTR4_SELECT_ID 256
+#define UI_TEXT_EXTR5_SELECT_ID 257
+#define UI_TEXT_DITTO_0_ID 258
+#define UI_TEXT_DITTO_1_ID 259
+#define UI_TEXT_DITTO_2_ID 260
+#define UI_TEXT_DITTO_3_ID 261
+#define UI_TEXT_ZPROBE_HEIGHT_ID 262
+#define UI_TEXT_OFFSETS_ID 263
+#define UI_TEXT_X_OFFSET_ID 264
+#define UI_TEXT_Y_OFFSET_ID 265
+#define UI_TEXT_Z_OFFSET_ID 266
+#define UI_TEXT_DBG_ENDSTOP_ID 267 //     "EndStop:%dp"
+#define UI_TEXT_BED_LEVEL_ID 268
+#define UI_TEXT_WIZ_BED_LEVEL1_ID 269
+#define UI_TEXT_WIZ_BED_LEVEL2_ID 270
+#define UI_TEXT_WIZ_BED_LEVEL3_ID 271
+#define UI_TEXT_WIZ_BED_LEVEL4_ID 272
+#define UI_TEXT_WIZ_MANUAL_PROBE1_ID 273
+#define UI_TEXT_WIZ_MANUAL_PROBE2_ID 274
+#define UI_TEXT_WIZ_MANUAL_PROBE3_ID 275
+#define UI_TEXT_WIZ_MANUAL_PROBE4_ID 276
+#define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT1_ID 277
+#define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT2_ID 278
+#define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT3_ID 279
+#define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT4_ID 280
+#define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT1_ID 281
+#define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT2_ID 282
+#define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT3_ID 283
+#define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT4_ID 284
+
 
 // Universal definitions
 
@@ -514,7 +516,7 @@
 #define UI_TEXT_ACTION_ZPOSITION_FAST4C_EN "Max endstop:%sZ"
 #define UI_TEXT_ACTION_ZPOSITION_FAST4D_EN ""
 #define UI_TEXT_ACTION_EPOSITION_FAST2A_EN "E:%x3 mm"
-#define UI_TEXT_ACTION_EPOSITION_FAST2B_EN "1 click = 1 mm"
+#define UI_TEXT_ACTION_EPOSITION_FAST2B_EN "1 click = 0.5 mm"
 #define UI_TEXT_ACTION_XPOSITION2A_EN "X:%x0 mm"
 #define UI_TEXT_ACTION_XPOSITION2B_EN "Min:%sx Max:%sX"
 #define UI_TEXT_ACTION_YPOSITION2A_EN "Y:%x1 mm"
@@ -560,6 +562,7 @@
 #define UI_TEXT_EXTR_PMAX_EN         "PID Max:%XD"
 #define UI_TEXT_EXTR_XOFF_EN         "X-Offset:%Xx"
 #define UI_TEXT_EXTR_YOFF_EN         "Y-Offset:%Xy"
+#define UI_TEXT_EXTR_ZOFF_EN         "Z-Offset:%Xz"
 #define UI_TEXT_STRING_HM_BANGBANG_EN "BangBang"
 #define UI_TEXT_STRING_HM_PID_EN     "PID"
 #define UI_TEXT_STRING_ACTION_EN     "Action:%la"

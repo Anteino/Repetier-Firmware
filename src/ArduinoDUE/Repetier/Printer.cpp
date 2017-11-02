@@ -54,6 +54,7 @@ uint8_t Printer::debugLevel = 6; ///< Bitfield defining debug output. 1 = echo, 
 fast8_t Printer::stepsPerTimerCall = 1;
 uint8_t Printer::menuMode = 0;
 uint8_t Printer::fanSpeed = 0; // Last fan speed set with M106/M107
+//uint8_t Printer::fan2Speed = 0; // Last fan speed set with M106/M107
 float Printer::extrudeMultiplyError = 0;
 float Printer::extrusionFactor = 1.0;
 uint8_t Printer::interruptEvent = 0;
@@ -314,35 +315,47 @@ bool Printer::isPositionAllowed(float x,float y,float z)
     return true;
 }
 
-void Printer::setFanSpeedDirectly(uint8_t speed) {
-#if FAN_PIN > -1 && FEATURE_FAN_CONTROL
-    if(pwm_pos[PWM_FAN1] == speed)
-        return;
-#if FAN_KICKSTART_TIME
-    if(fanKickstart == 0 && speed > pwm_pos[PWM_FAN1] && speed < 85)
+void Printer::setFanSpeedDirectly(uint8_t speed, uint8_t id)
+{
+  uint8_t finalId = PWM_FAN1 + id;
+  #if FAN_PIN > -1 && FEATURE_FAN_CONTROL
+    if(pwm_pos[finalId] == speed)
     {
-         if(pwm_pos[PWM_FAN1]) fanKickstart = FAN_KICKSTART_TIME / 100;
-         else                  fanKickstart = FAN_KICKSTART_TIME / 25;
+      return;
     }
-#endif
-    pwm_pos[PWM_FAN1] = speed;
-#endif
+    #if FAN_KICKSTART_TIME
+      if(fanKickstart == 0 && speed > pwm_pos[finalId] && speed < 85)
+      {
+        if(pwm_pos[finalId])
+        {
+          fanKickstart = FAN_KICKSTART_TIME / 100;
+        }
+        else
+        {
+          fanKickstart = FAN_KICKSTART_TIME / 25;
+        }
+      }
+    #endif
+    pwm_pos[finalId] = speed;
+  #endif
+	Serial.println("Fan " + String(id) + " with finalId: " + String(finalId) + " was set to speed: " + String(pwm_pos[finalId]) + ".");
 }
 
-void Printer::setFan2SpeedDirectly(uint8_t speed) {
-    #if FAN2_PIN > -1 && FEATURE_FAN2_CONTROL
-    if(pwm_pos[PWM_FAN2] == speed)
-        return;
-    #if FAN_KICKSTART_TIME
-    if(fan2Kickstart == 0 && speed > pwm_pos[PWM_FAN2] && speed < 85)
-    {
-        if(pwm_pos[PWM_FAN2]) fan2Kickstart = FAN_KICKSTART_TIME / 100;
-        else                  fan2Kickstart = FAN_KICKSTART_TIME / 25;
-    }
-    #endif
-    pwm_pos[PWM_FAN2] = speed;
-    #endif
-}
+//void Printer::setFan2SpeedDirectly(uint8_t speed) {
+//    #if FAN2_PIN > -1 && FEATURE_FAN2_CONTROL
+//    if(pwm_pos[PWM_FAN2] == speed)
+//        return;
+//    #if FAN_KICKSTART_TIME
+//    if(fan2Kickstart == 0 && speed > pwm_pos[PWM_FAN2] && speed < 85)
+//    {
+//        if(pwm_pos[PWM_FAN2]) fan2Kickstart = FAN_KICKSTART_TIME / 100;
+//        else                  fan2Kickstart = FAN_KICKSTART_TIME / 25;
+//    }
+//    #endif
+//    pwm_pos[PWM_FAN2] = speed;
+//    #endif
+//	Serial.println("Fan 1 was set.");
+//}
 
 void Printer::updateDerivedParameter()
 {
@@ -487,6 +500,25 @@ uint8_t Printer::moveToReal(float x, float y, float z, float e, float f,bool pat
 
     PrintLine::queueCartesianMove(ALWAYS_CHECK_ENDSTOPS, pathOptimize);
     return 1;
+}
+
+void Printer::moveToAbsoluteQue(float x, float y, float z, float e, float f)
+{
+  if(x != IGNORE_COORDINATE)
+  {
+    x = x - Printer::offsetX;
+  }
+  if(y != IGNORE_COORDINATE)
+  {
+    y = y - Printer::offsetY;
+  }
+  if(z != IGNORE_COORDINATE)
+  {
+    z = z - Printer::offsetZ;
+  }
+  Printer::moveTo(x, y, z, e, f);
+  Commands::waitUntilEndOfAllMoves();
+  Printer::updateCurrentPosition(true);
 }
 
 void Printer::setOrigin(float xOff, float yOff, float zOff)
@@ -877,8 +909,9 @@ void Printer::setup()
     PULLUP(EXT5_JAM_PIN, EXT5_JAM_PULLUP);
 #endif // defined
 #if CASE_LIGHTS_PIN >= 0
-    SET_OUTPUT(CASE_LIGHTS_PIN);
-    WRITE(CASE_LIGHTS_PIN, CASE_LIGHT_DEFAULT_ON);
+   pwm_pos[PWM_CASE_LIGHT] = CASE_LIGHT_DEFAULT_ON * 255;
+   SET_OUTPUT(CASE_LIGHTS_PIN);
+   WRITE(CASE_LIGHTS_PIN, CASE_LIGHT_DEFAULT_ON);
 #endif // CASE_LIGHTS_PIN
 #if defined(UI_VOLTAGE_LEVEL) && defined(EXP_VOLTAGE_LEVEL_PIN) && EXP_VOLTAGE_LEVEL_PIN >-1
     SET_OUTPUT(EXP_VOLTAGE_LEVEL_PIN);
@@ -1070,7 +1103,7 @@ void Printer::homeXAxis()
     #endif
     Extruder::current = curExtruder;
     // Now position current extrude on x = 0
-    PrintLine::moveRelativeDistanceInSteps(-Extruder::current->xOffset, 0, 0, 0, homingFeedrate[X_AXIS], true, true);
+    PrintLine::moveRelativeDistanceInSteps(Extruder::current->xOffset, 0, 0, 0, homingFeedrate[X_AXIS], true, true);
     currentPositionSteps[X_AXIS] = xMinSteps;
 #else
     if ((MIN_HARDWARE_ENDSTOP_X && X_MIN_PIN > -1 && X_HOME_DIR == -1) || (MAX_HARDWARE_ENDSTOP_X && X_MAX_PIN > -1 && X_HOME_DIR == 1))
@@ -1349,16 +1382,17 @@ void Printer::zBabystep()
     //HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 1);
 }
 
-void Printer::setCaseLight(bool on) {
+void Printer::setCaseLight(int s) {
 #if CASE_LIGHTS_PIN > -1
-    WRITE(CASE_LIGHTS_PIN,on);
+//    pwm_pos[PWM_CASE_LIGHT] = s;
+    WRITE(CASE_LIGHTS_PIN,s);
     reportCaseLightStatus();
 #endif
 }
 
 void Printer::reportCaseLightStatus() {
 #if CASE_LIGHTS_PIN > -1
-    if(READ(CASE_LIGHTS_PIN))
+    if(READ(CASE_LIGHTS_PIN) > 0)
         Com::printInfoFLN(PSTR("Case lights on"));
     else
         Com::printInfoFLN(PSTR("Case lights off"));
