@@ -2470,9 +2470,12 @@ int UIDisplay::okAction(bool allowMoves)
                 pushMenu(&ui_wiz_manual_probe, true); // present menu to raise bed to extruder 0, and confirm by clicking
                 break;
               case secondStage:
+                Printer::updateCurrentPosition(true);
                 Printer::realPosition(cx, cy, cz);
-                Extruder::current->zOffset += (int)((cz - 5) * Printer::axisStepsPerMM[Z_AXIS]);
+                Extruder::current->zOffset += (int)((cz - 5.0) * Printer::axisStepsPerMM[Z_AXIS]);
+                Printer::offsetZ = Extruder::current->zOffset * Printer::invAxisStepsPerMM[Z_AXIS];
                 EEPROM::storeDataIntoEEPROM();
+                Printer::updateCurrentPosition(true);
 
                 Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, 8.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
                 Printer::moveTo(140.0, 98.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
@@ -2505,9 +2508,12 @@ int UIDisplay::okAction(bool allowMoves)
                 pushMenu(&ui_wiz_manual_probe, true); // present menu to user asking to raise bed until second nozzle touches, and confirm by clicking
                 break;
               case finish:
+                Printer::updateCurrentPosition(true);
                 Printer::realPosition(cx, cy, cz);
-                Extruder::current->zOffset += (int)((cz - 5) * Printer::axisStepsPerMM[Z_AXIS]);
+                Extruder::current->zOffset += (int)((cz - 5.0) * Printer::axisStepsPerMM[Z_AXIS]);
+                Printer::offsetZ = Extruder::current->zOffset * Printer::invAxisStepsPerMM[Z_AXIS];
                 EEPROM::storeDataIntoEEPROM();
+                Printer::updateCurrentPosition(true);
                 
                 Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, 8.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
                 Commands::waitUntilEndOfAllMoves();

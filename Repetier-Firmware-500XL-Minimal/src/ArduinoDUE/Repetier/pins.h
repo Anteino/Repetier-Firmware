@@ -72,6 +72,8 @@ CPU_ARCH
 // Due analog pin #57
 #define TEMP_4_PIN       4
 
+//#define CASE_TEMP_PIN    5
+
 // Dua analog pin #59 = A5 -> AD 2
 #define THERMOCOUPLE_0_PIN  2
 // There are no more analog pins freely available.
@@ -94,7 +96,7 @@ CPU_ARCH
 #define ORIG_E1_ENABLE_PIN  65
 
 #define ORIG_E2_STEP_PIN    51
-#define ORIG_E2_DIR_PIN     53
+#define ORIG_E2_DIR_PIN     -1  //  Was 53, but is used for case fan now.
 #define ORIG_E2_ENABLE_PIN  49
 
 // Extra driver on extension board
@@ -126,6 +128,8 @@ CPU_ARCH
 #define LED_PIN       -1
 #define ORIG_FAN_PIN   9
 #define ORIG_FAN2_PIN           8
+//#define ORIG_CASE_FAN_PIN       53
+#define ORIG_CASE_FAN_PIN       -1
 #define ORIG_PS_ON_PIN          40
 #define KILL_PIN       -1
 #define SUICIDE_PIN    -1  //PIN that has to be turned on right after start, to keep power flowing.
@@ -263,6 +267,7 @@ CPU_ARCH
 #define FAN_PIN ORIG_FAN_PIN
 #ifdef ORIG_FAN2_PIN
 #define FAN2_PIN ORIG_FAN2_PIN
+#define CASE_FAN_PIN ORIG_CASE_FAN_PIN
 #endif
 
 #define PS_ON_PIN ORIG_PS_ON_PIN

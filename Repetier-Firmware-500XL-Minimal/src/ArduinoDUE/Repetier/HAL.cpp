@@ -780,6 +780,8 @@ void TIMER1_COMPA_VECTOR ()
 #if COOLER_PWM_SPEED == 0
 #define COOLER_PWM_STEP 1
 #define COOLER_PWM_MASK 255
+#define CASE_FAN_PWM_STEP 1
+#define CASE_FAN_PWM_MASK 255
 #elif COOLER_PWM_SPEED == 1
 #define COOLER_PWM_STEP 2
 #define COOLER_PWM_MASK 254
@@ -804,6 +806,7 @@ void PWM_TIMER_VECTOR ()
   TC_GetStatus(PWM_TIMER, PWM_TIMER_CHANNEL);
 
   static uint8_t pwm_count_cooler = 0;
+  static uint8_t pwm_count_case_fan = 0;
   static uint8_t pwm_count_case_light = 0;
   static uint8_t pwm_count_heater = 0;
   static uint8_t pwm_pos_set[PWM_CASE_LIGHT + 1];
@@ -872,6 +875,10 @@ void PWM_TIMER_VECTOR ()
 #if FAN2_PIN > -1 && FEATURE_FAN2_CONTROL
     if((pwm_pos_set[PWM_FAN2] = (pwm_pos[PWM_FAN2] & COOLER_PWM_MASK)) > 0) WRITE(FAN2_PIN,1);
 #endif
+//if((pwm_pos_set[PWM_CASE_FAN] = (pwm_pos[PWM_CASE_FAN] & CASE_FAN_PWM_MASK)) > 0)
+//{
+//  WRITE(CASE_FAN_PIN, 1);
+//}
 #if defined(FAN_THERMO_PIN) && FAN_THERMO_PIN > -1
     if((pwm_pos_set[PWM_FAN_THERMO] = (pwm_pos[PWM_FAN_THERMO] & COOLER_PWM_MASK)) > 0) WRITE(FAN_THERMO_PIN,1);
 #endif
@@ -986,6 +993,7 @@ if(fan2Kickstart == 0)
   if(pwm_pos_set[PWM_FAN2] == pwm_count_cooler && pwm_pos_set[PWM_FAN2] != COOLER_PWM_MASK) WRITE(FAN2_PIN,0);
   #endif
 }
+//if(pwm_pos_set[PWM_CASE_FAN] == pwm_count_case_fan && pwm_pos_set[PWM_CASE_FAN] != CASE_FAN_PWM_MASK) WRITE(CASE_FAN_PIN, 0);
 #endif
 #if defined(FAN_THERMO_PIN) && FAN_THERMO_PIN > -1
   #if PDM_FOR_COOLER
@@ -1047,6 +1055,7 @@ if(fan2Kickstart == 0)
   }
 #endif // ANALOG_INPUTS > 0
   pwm_count_cooler += COOLER_PWM_STEP;
+  pwm_count_case_fan += CASE_FAN_PWM_STEP;
   pwm_count_heater += HEATER_PWM_STEP;
   UI_FAST; // Short timed user interface action
 #if FEATURE_WATCHDOG

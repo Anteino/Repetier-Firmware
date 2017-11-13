@@ -177,6 +177,10 @@ void Commands::printTemperatures(bool showRaw) {
             Com::printF(Com::tColon,(1023 << (2 - ANALOG_REDUCE_BITS)) - extruder[i].tempControl.currentTemperature);
         }
     }
+    TemperatureController *act = tempController[3];
+    Com::printF(Com::tSpaceT,(int)NUM_EXTRUDER);
+    Com::printF(Com::tColon, act->currentTemperatureC);
+    Com::printF(Com::tSpaceSlash, Printer::thermoMinTemp, 0);
 #elif NUM_EXTRUDER == 1
     if(showRaw) {
         Com::printF(Com::tSpaceRaw,(int)0);
@@ -234,37 +238,11 @@ void Commands::setFanSpeed(int speed, int id, bool immediately)
   Com::printFLN(Com::tFanspeed,speed); // send only new values to break update loops!
 }
 
-//void Commands::setFanSpeed(int speed, bool immediately) {
-//#if FAN_PIN >- 1 && FEATURE_FAN_CONTROL
-//    speed = constrain(speed,0,255);
-//    Printer::setMenuMode(MENU_MODE_FAN_RUNNING, speed != 0);
-//    Printer::fanSpeed = speed;
-//    Printer::fan2Speed = 0;
-//    if(PrintLine::linesCount == 0 || immediately) {
-//        for(fast8_t i = 0; i < PRINTLINE_CACHE_SIZE; i++)
-//            PrintLine::lines[i].secondSpeed = speed; // fill all printline buffers with new fan speed value
-//        Printer::setFanSpeedDirectly(speed);
-//        Printer::setFan2SpeedDirectly(0);
-//    }
-//    Com::printFLN(Com::tFanspeed,speed); // send only new values to break update loops!
-//#endif
-//}
-//
-//void Commands::setFan2Speed(int speed, bool immediately) {
-//#if FAN2_PIN >- 1 && FEATURE_FAN2_CONTROL
-//    speed = constrain(speed,0,255);
-//    Printer::setMenuMode(MENU_MODE_FAN_RUNNING,speed != 0);
-//    Printer::fanSpeed = 0;
-//    Printer::fan2Speed = speed;
-//    if(PrintLine::linesCount == 0 || immediately) {
-//        for(fast8_t i = 0; i < PRINTLINE_CACHE_SIZE; i++)
-//            PrintLine::lines[i].second2Speed = speed; // fill all printline buffers with new fan speed value
-//        Printer::setFan2SpeedDirectly(speed);
-//        Printer::setFanSpeedDirectly(0);
-//    }
-//    Com::printFLN(Com::tFan2speed,speed); // send only new values to break update loops!
-//#endif
-//}
+void Commands::setCaseFanSpeed(int speed)
+{
+  speed = constrain(speed, 0, 255);
+  Printer::setCaseFanSpeedDirectly(speed);
+}
 
 void Commands::reportPrinterUsage() {
 #if EEPROM_MODE != 0
@@ -1201,7 +1179,11 @@ void Commands::processMCode(GCode *com) {
         case 107: // M107 Fan Off
             setFanSpeed(0, 0, false);
             setFanSpeed(0, 1, false);
+            break;
 #endif
+        case 108: //  Normally used for cancelling heatup, but repetier doesn't support this. Therefore this slot was free and is "abused" for controlling the case fan.
+          setCaseFanSpeed(com->S);
+          break;
         case 111: // M111 enable/disable run time debug flags
             if(com->hasS()) Printer::setDebugLevel(static_cast<uint8_t>(com->S));
             if(com->hasP()) {
@@ -1537,6 +1519,7 @@ void Commands::processMCode(GCode *com) {
 #endif
 #if FAN_THERMO_PIN > -1
         case 460: // M460 X<minTemp> Y<maxTemp> : Set temperature range for thermo controlled fan
+            Printer::resetFanThermoPID();
             if(com->hasX())
                 Printer::thermoMinTemp = com->X;
             if(com->hasY())

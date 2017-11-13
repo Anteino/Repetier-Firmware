@@ -43,6 +43,7 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 
 /* Number of extruders. Maximum 6 extruders. */
 #define NUM_EXTRUDER 2
+#define CASE_SENSORS 1
 
 // The following define selects which electronics board you have. Please choose the one that matches your setup
 // Arduino Due with RADDS
@@ -1420,15 +1421,20 @@ goes on as soon as moves occur. Mainly to prevent overheating of stepper drivers
 /** You can have one additional fan controlled by a temperature. You can set
 set at which temperature it should turn on and at which it should reach max. speed.
 */
-#define FAN_THERMO_PIN -1
+#define FAN_THERMO_PIN 53
 #define FAN_THERMO_MIN_PWM 128
 #define FAN_THERMO_MAX_PWM 255
-#define FAN_THERMO_MIN_TEMP 45
-#define FAN_THERMO_MAX_TEMP 60
+#define FAN_THERMO_MIN_TEMP 10
+#define FAN_THERMO_MAX_TEMP 11
 
 // Analog pin number or channel for due boards
-#define FAN_THERMO_THERMISTOR_PIN -1
+#define FAN_THERMO_THERMISTOR_PIN 5
 #define FAN_THERMO_THERMISTOR_TYPE 1
+
+//  This PID uses roughly the same parameters as the PID for the heated bed
+#define FAN_THERMO_P  0.006
+#define FAN_THERMO_I  0.0005
+#define FAN_THERMO_D  0.009
 
 /** Adds support for ESP8266 Duet web interface, PanelDue and probably some other things.
 * This essentially adds command M36/M408 and extends M20.

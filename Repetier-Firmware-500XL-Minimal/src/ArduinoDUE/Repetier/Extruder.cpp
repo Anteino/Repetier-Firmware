@@ -75,18 +75,43 @@ void Extruder::manageTemperatures()
 #if FAN_THERMO_PIN > -1
         // Special case thermistor controlled fan
         if(act == &thermoController) {
-            if(act->currentTemperatureC < Printer::thermoMinTemp)
-                pwm_pos[PWM_FAN_THERMO] = 0;
-            else if(act->currentTemperatureC > Printer::thermoMaxTemp)
-                pwm_pos[PWM_FAN_THERMO] = FAN_THERMO_MAX_PWM;
-            else {
-                // Interpolate target speed
-                float out = FAN_THERMO_MIN_PWM + (FAN_THERMO_MAX_PWM-FAN_THERMO_MIN_PWM) * (act->currentTemperatureC - Printer::thermoMinTemp) / (Printer::thermoMaxTemp - Printer::thermoMinTemp);
-                if(out > 255)
-                    pwm_pos[PWM_FAN_THERMO] = FAN_THERMO_MAX_PWM;
-                else
-                    pwm_pos[PWM_FAN_THERMO] = static_cast<uint8_t>(out);
+            /*  Anteino: Insert PID controller here */
+            
+            Printer::dt = millis() - Printer::oldTime;
+            Printer::oldTime += Printer::dt;
+            Printer::caseTempTimes[Printer::caseTempIndex] = Printer::dt;
+
+            float error = act->currentTemperatureC - Printer::thermoMinTemp, differential = 0.0, integral = 0.0, output = 0.0;
+            int realIndex = 0, interval = 0, i = 0, pwmPos = 0;
+            Printer::caseTempValues[Printer::caseTempIndex] = error;
+            for(i = Printer::caseTempIndex; i < Printer::caseTempIndex + FAN_THERMO_PID_HISTORY; i++)
+            {
+              realIndex = i % FAN_THERMO_PID_HISTORY;
+              interval += Printer::caseTempTimes[realIndex];
+              integral += Printer::caseTempValues[realIndex];             
+
+              if(interval >= FAN_THERMO_PID_DT)
+              {
+                differential = -Printer::caseTempValues[i];
+                break;
+              }
             }
+            realIndex = i - Printer::caseTempIndex + 1;
+            integral = integral * (float)interval / (float)realIndex;
+            differential = (differential + error) / (float)interval;
+
+            output = FAN_THERMO_P * error + FAN_THERMO_I * integral + FAN_THERMO_D * differential;
+//            Serial.println("Wanted temperature: " + String(Printer::thermoMinTemp) + ", actual temperature: " + String(act->currentTemperatureC) + ", error: " + String(error) + ", integral: " + String(integral) + ", differential: " + String(differential) + ", output: " + String(output) + ".");
+            
+            Printer::caseTempIndex++;
+            if(Printer::caseTempIndex >= FAN_THERMO_PID_HISTORY)
+            {
+              Printer::caseTempIndex = 0;
+            }
+
+            pwmPos = (int)(output * 255.0);
+            pwmPos = constrain(pwmPos, 0, 255);
+            pwm_pos[PWM_FAN_THERMO] = pwmPos;
             continue;
         }
 #endif

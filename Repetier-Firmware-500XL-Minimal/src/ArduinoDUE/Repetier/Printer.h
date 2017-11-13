@@ -111,6 +111,9 @@ union wizardVar
 #define towerBMinSteps Printer::yMinSteps
 #define towerCMinSteps Printer::zMinSteps
 
+#define FAN_THERMO_PID_HISTORY  50
+#define FAN_THERMO_PID_DT       300   //  Milliseconds to integrate/differentiate over
+
 class Plane {
     public:
     // f(x, y) = ax + by + c
@@ -256,9 +259,12 @@ public:
     static uint8_t relativeCoordinateMode;    ///< Determines absolute (false) or relative Coordinates (true).
     static uint8_t relativeExtruderCoordinateMode;  ///< Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
 
+    static float caseTempValues[FAN_THERMO_PID_HISTORY];
+    static int caseTempTimes[FAN_THERMO_PID_HISTORY], caseTempIndex;
+    static long unsigned int oldTime, dt;
+
     static uint8_t mode;
     static uint8_t fanSpeed; // Last fan speed set with M106/M107
-//    static uint8_t fan2Speed; // Last fan speed set with M106/M107
     static float zBedOffset;
     static uint8_t flag0,flag1; // 1 = stepper disabled, 2 = use external extruder interrupt, 4 = temp Sensor defect, 8 = homed
     static uint8_t flag2;
@@ -415,7 +421,7 @@ public:
     }
     /** Sets the pwm for the fan speed. Gets called by motion control ot Commands::setFanSpeed. */
     static void setFanSpeedDirectly(uint8_t speed, uint8_t id);
-//    static void setFan2SpeedDirectly(uint8_t speed);
+    static void setCaseFanSpeedDirectly(int speed);
     /** \brief Disable stepper motor for x direction. */
     static INLINE void disableXStepper()
     {
@@ -1001,6 +1007,7 @@ public:
     static void updateCurrentPosition(bool copyLastCmd = false);
     static void kill(uint8_t only_steppers);
     static void updateAdvanceFlags();
+    static void resetFanThermoPID();
     static void setup();
     static void defaultLoopActions();
     static uint8_t setDestinationStepsFromGCode(GCode *com);

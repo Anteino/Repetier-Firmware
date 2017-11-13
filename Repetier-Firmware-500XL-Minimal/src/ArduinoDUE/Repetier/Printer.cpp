@@ -42,6 +42,10 @@ int16_t Printer::zBabystepsMissing = 0;
 uint8_t Printer::relativeCoordinateMode = false;  ///< Determines absolute (false) or relative Coordinates (true).
 uint8_t Printer::relativeExtruderCoordinateMode = false;  ///< Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
 
+float Printer::caseTempValues[FAN_THERMO_PID_HISTORY];
+int Printer::caseTempTimes[FAN_THERMO_PID_HISTORY], Printer::caseTempIndex;
+long unsigned int Printer::oldTime, Printer::dt;
+
 long Printer::currentPositionSteps[E_AXIS_ARRAY];
 float Printer::currentPosition[Z_AXIS_ARRAY];
 float Printer::lastCmdPos[Z_AXIS_ARRAY];
@@ -341,21 +345,10 @@ void Printer::setFanSpeedDirectly(uint8_t speed, uint8_t id)
 	Serial.println("Fan " + String(id) + " with finalId: " + String(finalId) + " was set to speed: " + String(pwm_pos[finalId]) + ".");
 }
 
-//void Printer::setFan2SpeedDirectly(uint8_t speed) {
-//    #if FAN2_PIN > -1 && FEATURE_FAN2_CONTROL
-//    if(pwm_pos[PWM_FAN2] == speed)
-//        return;
-//    #if FAN_KICKSTART_TIME
-//    if(fan2Kickstart == 0 && speed > pwm_pos[PWM_FAN2] && speed < 85)
-//    {
-//        if(pwm_pos[PWM_FAN2]) fan2Kickstart = FAN_KICKSTART_TIME / 100;
-//        else                  fan2Kickstart = FAN_KICKSTART_TIME / 25;
-//    }
-//    #endif
-//    pwm_pos[PWM_FAN2] = speed;
-//    #endif
-//	Serial.println("Fan 1 was set.");
-//}
+void Printer::setCaseFanSpeedDirectly(int speed)
+{
+  pwm_pos[PWM_CASE_FAN] = speed;
+}
 
 void Printer::updateDerivedParameter()
 {
@@ -624,8 +617,21 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
     return !com->hasNoXYZ() || (com->hasE() && destinationSteps[E_AXIS] != currentPositionSteps[E_AXIS]); // ignore unproductive moves
 }
 
-void Printer::setup()
+void Printer::resetFanThermoPID()
 {
+  for(int i = 0; i < FAN_THERMO_PID_HISTORY; i++)
+  {
+    caseTempValues[i] = 0.0;
+    caseTempTimes[i] = 0;
+  }
+  oldTime = millis(), dt = 0;
+  caseTempIndex = 0;
+}
+
+void Printer::setup()
+{    
+    resetFanThermoPID();
+  
     HAL::stopWatchdog();
 #if UI_DISPLAY_TYPE != NO_DISPLAY
     Com::selectLanguage(0); // just make sure we have a language in case someone uses it early
@@ -827,6 +833,7 @@ void Printer::setup()
     SET_OUTPUT(FAN2_PIN);
     WRITE(FAN2_PIN, LOW);
 #endif
+SET_OUTPUT(CASE_FAN_PIN);
 #if FAN_THERMO_PIN > -1
     SET_OUTPUT(FAN_THERMO_PIN);
     WRITE(FAN_THERMO_PIN, LOW);
