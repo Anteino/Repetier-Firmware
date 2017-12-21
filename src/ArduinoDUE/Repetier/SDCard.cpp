@@ -186,6 +186,40 @@ void SDCard::stopPrint(bool keepHeat)
     }
 }
 
+//  This function stops the current print and creates a resume.g. Function was first created
+//  by TripodMaker and edited by Anteino. Inspired by Gemma.
+void SDCard::saveStopPrint()
+{
+  SdBaseFile parent;
+  parent = *fat.vwd();
+
+  this->createResumeGemma();
+  
+  this->stopPrint();
+}
+
+void SDCard::createResumeGemma()
+{
+  SdBaseFile parent;
+  file.sync();
+  file.close();
+  parent = *fat.vwd();
+  char nameSav[15];
+  strcpy(nameSav, "resume.g");
+  bool nameSavCheck = file.exists(nameSav);
+  Com::printFLN(PSTR("name'SavCheck boolean "), nameSavCheck);
+  if(!nameSavCheck)
+  {
+    Com::printFLN(PSTR("File does not exist yet."));
+    file.createContiguous(&parent, nameSav, 1);
+  }
+  else
+  {
+    Com::printFLN(PSTR("File already exists."));
+  }
+  file.close();
+}
+
 void SDCard::writeCommand(GCode *code)
 {
     unsigned int sum1 = 0, sum2 = 0; // for fletcher-16 checksum

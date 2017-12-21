@@ -75,7 +75,7 @@ void Extruder::manageTemperatures()
 #if FAN_THERMO_PIN > -1
         // Special case thermistor controlled fan
         if(act == &thermoController) {
-            /*  Anteino: Insert PID controller here */
+            /*  Anteino: Added custom PID controller for chamber temperature */
             
             Printer::dt = millis() - Printer::oldTime;
             Printer::oldTime += Printer::dt;

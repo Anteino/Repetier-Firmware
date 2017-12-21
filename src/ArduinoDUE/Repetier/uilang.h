@@ -98,7 +98,7 @@
 #define LANGUAGE_FI_ID 11
 
 #define NUM_LANGUAGES_KNOWN 12
-#define NUM_TRANSLATED_WORDS 287
+#define NUM_TRANSLATED_WORDS 289
 
 // For selectable translations we refer to each text by a id which gets
 // defined here. The list starts at 0 and defines the position in the
@@ -374,24 +374,34 @@
 #define UI_TEXT_Y_OFFSET_ID 265
 #define UI_TEXT_Z_OFFSET_ID 266
 #define UI_TEXT_DBG_ENDSTOP_ID 267 //     "EndStop:%dp"
+
 #define UI_TEXT_BED_LEVEL_ID 268
+
 #define UI_TEXT_WIZ_BED_LEVEL1_ID 269
 #define UI_TEXT_WIZ_BED_LEVEL2_ID 270
 #define UI_TEXT_WIZ_BED_LEVEL3_ID 271
 #define UI_TEXT_WIZ_BED_LEVEL4_ID 272
+
 #define UI_TEXT_WIZ_MANUAL_PROBE1_ID 273
 #define UI_TEXT_WIZ_MANUAL_PROBE2_ID 274
 #define UI_TEXT_WIZ_MANUAL_PROBE3_ID 275
 #define UI_TEXT_WIZ_MANUAL_PROBE4_ID 276
+
 #define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT1_ID 277
 #define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT2_ID 278
 #define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT3_ID 279
 #define UI_TEXT_WIZ_HARDWARE_KNOB_LEFT4_ID 280
+
 #define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT1_ID 281
 #define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT2_ID 282
 #define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT3_ID 283
 #define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT4_ID 284
+
 #define UI_TEXT_STOP_KEEP_HEAT_ID 285
+#define UI_TEXT_SAVE_STOP_ID 286
+
+#define UI_TEXT_PAGE_CHAMBER_ID 287
+#define UI_TEXT_CHAMBER_TEMP_ID 288
 
 // Universal definitions
 
@@ -449,7 +459,7 @@
 #define UI_TEXT_EXTR0_SELECT_EN     "%X0 Select extr. 1"
 #define UI_TEXT_EXTR1_SELECT_EN     "%X1 Select extr. 2"
 #define UI_TEXT_EXTR2_SELECT_EN     "%X2 Select extr. 3"
-#define UI_TEXT_EXTR_ORIGIN_EN      "Set Origin"
+#define UI_TEXT_EXTR_ORIGIN_EN      "Set Origin (G92 E0)"
 #define UI_TEXT_PRINT_X_EN          "Print X:%ax"
 #define UI_TEXT_PRINT_Y_EN          "Print Y:%ay"
 #define UI_TEXT_PRINT_Z_EN          "Print Z:%az"
@@ -713,6 +723,10 @@
 #define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT4_EN "Click to confirm"
 
 #define UI_TEXT_STOP_KEEP_HEAT_EN "Stop, keep temp"
+#define UI_TEXT_SAVE_STOP_EN "Save and stop"
+
+#define UI_TEXT_PAGE_CHAMBER_EN          " C:%ek/%Ek" cDEG "C" cARROW "%ok"
+#define UI_TEXT_CHAMBER_TEMP_EN       "Chamber :%ek/%Ek" cDEG "C"
 
 // *************** German translation ****************
 
@@ -762,7 +776,7 @@
 #define UI_TEXT_EXTR0_SELECT_DE     "%X0 W" STR_auml "hle Extr. 1"
 #define UI_TEXT_EXTR1_SELECT_DE     "%X1 W" STR_auml "hle Extr. 2"
 #define UI_TEXT_EXTR2_SELECT_DE     "%X2 W" STR_auml "hle Extr. 3"
-#define UI_TEXT_EXTR_ORIGIN_DE      "Setze Nullpunkt"
+#define UI_TEXT_EXTR_ORIGIN_DE      "Setze Null (G92 E0)"
 #define UI_TEXT_PRINT_X_DE          "Drucken X:%ax"
 #define UI_TEXT_PRINT_Y_DE          "Drucken Y:%ay"
 #define UI_TEXT_PRINT_Z_DE          "Drucken Z:%az"
@@ -1026,6 +1040,10 @@
 #define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT4_DE "Weiter mit Klick"
 
 #define UI_TEXT_STOP_KEEP_HEAT_DE "Halt, halte Temp"
+#define UI_TEXT_SAVE_STOP_DE "Speicher und stop"
+
+#define UI_TEXT_PAGE_CHAMBER_DE " K:%ek/%Ek" cDEG "C" cARROW "%ok"
+#define UI_TEXT_CHAMBER_TEMP_DE " Kammer :%ek/%Ek" cDEG "C"
 
 // Dutch translation
 
@@ -1075,7 +1093,7 @@
 #define UI_TEXT_EXTR0_SELECT_NL     "%X0 Select extr. 1"
 #define UI_TEXT_EXTR1_SELECT_NL     "%X1 Select extr. 2"
 #define UI_TEXT_EXTR2_SELECT_NL     "%X2 Select extr. 3"
-#define UI_TEXT_EXTR_ORIGIN_NL      "Zet oorsprong"
+#define UI_TEXT_EXTR_ORIGIN_NL      "Zet nulpunt (G92 E0)"
 #define UI_TEXT_PRINT_X_NL          "Print X:%ax"
 #define UI_TEXT_PRINT_Y_NL          "Print Y:%ay"
 #define UI_TEXT_PRINT_Z_NL          "Print Z:%az"
@@ -1339,6 +1357,10 @@
 #define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT4_NL "Ga verder met klik"
 
 #define UI_TEXT_STOP_KEEP_HEAT_NL "Stop, houdt temp"
+#define UI_TEXT_SAVE_STOP_NL "Opslaan en stoppen"
+
+#define UI_TEXT_PAGE_CHAMBER_NL " K:%ek/%Ek" cDEG "C" cARROW "%ok"
+#define UI_TEXT_CHAMBER_TEMP_NL "  Kamer :%ek/%Ek" cDEG "C"
 
 // *************** Brazilian portuguese translation ****************
 

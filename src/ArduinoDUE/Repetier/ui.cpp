@@ -1341,6 +1341,11 @@ void UIDisplay::parse(const char *txt,bool ram)
                 ivalue = 0;
                 fvalue = Extruder::getHeatedBedTemperature();
             }
+            else if(c2 == 'k')
+            {
+              TemperatureController *act = tempController[3];
+              fvalue = act->currentTemperatureC;
+            }
             addFloat(fvalue, 3, ivalue);
             break;
         }
@@ -1348,6 +1353,10 @@ void UIDisplay::parse(const char *txt,bool ram)
             if(c2 == 'c') fvalue = Extruder::current->tempControl.targetTemperatureC;
             else if(c2 >= '0' && c2 <= '9') fvalue = extruder[c2 - '0'].tempControl.targetTemperatureC;
             else if(c2 == 'b') fvalue = heatedBedController.targetTemperatureC;
+            else if(c2 == 'k')
+            {
+              fvalue = Printer::thermoMinTemp;
+            }
             addFloat(fvalue, 3, 0 /*UI_TEMP_PRECISION*/);
             break;
 #if FAN_PIN > -1 && FEATURE_FAN_CONTROL
@@ -1453,6 +1462,10 @@ void UIDisplay::parse(const char *txt,bool ram)
             if(c2 >= '0' && c2 <= '9') ivalue = pwm_pos[c2 - '0'];
             else if(c2 == 'b') ivalue = pwm_pos[heatedBedController.pwmIndex];
             else if(c2 == 'C') ivalue = pwm_pos[Extruder::current->id];
+            else if(c2 == 'k')
+            {
+              ivalue = pwm_pos[PWM_FAN_THERMO];
+            }
             ivalue = (ivalue * 100) / 255;
             addInt(ivalue, 3);
             if(col < MAX_COLS)
@@ -2938,6 +2951,18 @@ ZPOS2:
         Extruder::setTemperatureForExtruder(tmp, action - UI_ACTION_EXTRUDER0_TEMP);
     }
     break;
+    case UI_ACTION_CHAMBER_TEMP:
+      Printer::resetFanThermoPID();
+      Printer::thermoMinTemp += increment;
+      if(Printer::thermoMinTemp < MIN_CHAMBER_TEMP)
+      {
+        Printer::thermoMinTemp = MIN_CHAMBER_TEMP;
+      }
+      else if(Printer::thermoMinTemp > MAX_CHAMBER_TEMP)
+      {
+        Printer::thermoMinTemp = MAX_CHAMBER_TEMP;
+      }
+      break;
     case UI_ACTION_FEEDRATE_MULTIPLY:
     {
         int fr = Printer::feedrateMultiply;
@@ -3429,9 +3454,12 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
             else sd.stopPrint();
             break;
         case UI_ACTION_SD_STOP_KEEP_HEAT:
-            if(!allowMoves) ret = UI_ACTION_SD_STOP;
+            if(!allowMoves) ret = UI_ACTION_SD_STOP_KEEP_HEAT;
             else sd.stopPrint(true);
-            Serial.println("I'm keeping the heat.");
+            break;
+        case UI_ACTION_SD_SAVE_STOP:
+            if(!allowMoves) ret = UI_ACTION_SD_SAVE_STOP;
+            else sd.saveStopPrint();
             break;
         case UI_ACTION_SD_UNMOUNT:
             sd.unmount();

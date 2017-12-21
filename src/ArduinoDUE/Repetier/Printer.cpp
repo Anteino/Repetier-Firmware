@@ -598,7 +598,7 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
     return !com->hasNoXYZ() || (com->hasE() && destinationSteps[E_AXIS] != currentPositionSteps[E_AXIS]); // ignore unproductive moves
 }
 
-void Printer::resetFanThermoPID()
+void Printer::resetFanThermoPID() //  Anteino: PID loop control for chamber temperature is in Extruder.cpp
 {
   for(int i = 0; i < FAN_THERMO_PID_HISTORY; i++)
   {

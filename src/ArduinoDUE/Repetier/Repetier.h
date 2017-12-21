@@ -870,6 +870,8 @@ public:
     void pausePrint(bool intern = false);
     void continuePrint(bool intern = false);
     void stopPrint(bool keepHeat = false);
+    void saveStopPrint();
+    void createResumeGemma();
     inline void setIndex(uint32_t  newpos)
     {
         if(!sdactive) return;

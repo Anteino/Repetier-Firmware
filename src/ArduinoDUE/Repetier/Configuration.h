@@ -1449,6 +1449,9 @@ set at which temperature it should turn on and at which it should reach max. spe
 #define FAN_THERMO_I  0.01
 #define FAN_THERMO_D  0.009
 
+#define MIN_CHAMBER_TEMP 10 //  Anteino 20-12-2017: Cut off the min and max temperatures of the chamber/cabinet
+#define MAX_CHAMBER_TEMP 75
+
 /** Adds support for ESP8266 Duet web interface, PanelDue and probably some other things.
 * This essentially adds command M36/M408 and extends M20.
 * Since it requires some memory do not enable it unless you have such a display!
