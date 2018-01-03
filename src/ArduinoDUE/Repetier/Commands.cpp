@@ -27,6 +27,14 @@ int Commands::lowestRAMValueSend = MAX_RAM;
 char Commands::message[20];
 String Commands::tmpMessage;
 
+#if CPU_ARCH==ARCH_AVR
+    #define GCI_BUF_SIZE 120
+    #else
+    #define GCI_BUF_SIZE 1024
+    #endif
+    
+char buf[GCI_BUF_SIZE];
+
 void Commands::commandLoop() {
     while(true) {
 #ifdef DEBUG_PRINT
@@ -948,9 +956,14 @@ void Commands::processMCode(GCode *com) {
             break;
         case 23: //M23 - Select file
             if(com->hasString()) {
+                sd.stopPrint();
                 sd.fat.chdir();
                 sd.selectFile(com->text);
+                sd.startPrint();
             }
+            break;
+        case 50024: //  M50024 - Start resume.g
+            sd.resumeG_resume();
             break;
         case 24: //M24 - Start SD print
             sd.startPrint();

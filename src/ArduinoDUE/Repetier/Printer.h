@@ -247,6 +247,8 @@ public:
     static long advanceExecuted;             ///< Executed advance steps
 #endif
 #endif
+    static char current_filename[LONG_FILENAME_LENGTH + 1];
+    
     static uint8_t menuMode;
     static float axisStepsPerMM[];
     static float invAxisStepsPerMM[];

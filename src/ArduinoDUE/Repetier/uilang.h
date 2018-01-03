@@ -98,7 +98,7 @@
 #define LANGUAGE_FI_ID 11
 
 #define NUM_LANGUAGES_KNOWN 12
-#define NUM_TRANSLATED_WORDS 289
+#define NUM_TRANSLATED_WORDS 290
 
 // For selectable translations we refer to each text by a id which gets
 // defined here. The list starts at 0 and defines the position in the
@@ -402,6 +402,8 @@
 
 #define UI_TEXT_PAGE_CHAMBER_ID 287
 #define UI_TEXT_CHAMBER_TEMP_ID 288
+
+#define UI_TEXT_RESUME_PRINT_ID 289
 
 // Universal definitions
 
@@ -725,8 +727,10 @@
 #define UI_TEXT_STOP_KEEP_HEAT_EN "Stop, keep temp"
 #define UI_TEXT_SAVE_STOP_EN "Save and stop"
 
-#define UI_TEXT_PAGE_CHAMBER_EN          " C:%ek/%Ek" cDEG "C" cARROW "%ok"
+#define UI_TEXT_PAGE_CHAMBER_EN       " C:%ek/%Ek" cDEG "C" cARROW "%ok"
 #define UI_TEXT_CHAMBER_TEMP_EN       "Chamber :%ek/%Ek" cDEG "C"
+
+#define UI_TEXT_RESUME_PRINT_EN       "Resume print"
 
 // *************** German translation ****************
 
@@ -1045,6 +1049,8 @@
 #define UI_TEXT_PAGE_CHAMBER_DE " K:%ek/%Ek" cDEG "C" cARROW "%ok"
 #define UI_TEXT_CHAMBER_TEMP_DE " Kammer :%ek/%Ek" cDEG "C"
 
+#define UI_TEXT_RESUME_PRINT_DE "Weiter drucken"
+
 // Dutch translation
 
 #define UI_TEXT_ON_NL               "Aan"
@@ -1361,6 +1367,8 @@
 
 #define UI_TEXT_PAGE_CHAMBER_NL " K:%ek/%Ek" cDEG "C" cARROW "%ok"
 #define UI_TEXT_CHAMBER_TEMP_NL "  Kamer :%ek/%Ek" cDEG "C"
+
+#define UI_TEXT_RESUME_PRINT_NL "Print voortzetten"
 
 // *************** Brazilian portuguese translation ****************
 

@@ -3423,8 +3423,7 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
         case UI_ACTION_SD_PRINT:
             if(sd.sdactive)
             {
-              Serial.println("Push first menu.");
-                pushMenu(&ui_menu_sd_fileselector, false);  //  Gets executed when "Print file" is clicked
+              pushMenu(&ui_menu_sd_fileselector, false);  //  Gets executed when "Print file" is clicked
             }
             break;
         case UI_ACTION_SD_PAUSE:
@@ -3455,11 +3454,15 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
             break;
         case UI_ACTION_SD_STOP_KEEP_HEAT:
             if(!allowMoves) ret = UI_ACTION_SD_STOP_KEEP_HEAT;
-            else sd.stopPrint(true);
+            else sd.saveStopPrint(true);
             break;
         case UI_ACTION_SD_SAVE_STOP:
             if(!allowMoves) ret = UI_ACTION_SD_SAVE_STOP;
-            else sd.saveStopPrint();
+            else sd.saveStopPrint(false);
+            break;
+        case UI_ACTION_SD_RESUME_PRINT:
+            if(!allowMoves) ret = UI_ACTION_SD_RESUME_PRINT;
+            else GCode::executeFString(PSTR("M50024\n"));
             break;
         case UI_ACTION_SD_UNMOUNT:
             sd.unmount();

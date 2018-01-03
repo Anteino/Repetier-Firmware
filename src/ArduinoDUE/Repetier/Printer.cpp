@@ -23,6 +23,7 @@ ufast8_t Printer::maxExtruderSpeed;            ///< Timer delay for end extruder
 volatile int Printer::extruderStepsNeeded; ///< This many extruder steps are still needed, <0 = reverse steps needed.
 //uint8_t Printer::extruderAccelerateDelay;     ///< delay between 2 speec increases
 #endif
+char  Printer::current_filename[LONG_FILENAME_LENGTH + 1];
 //Stepper Movement Variables
 float Printer::axisStepsPerMM[E_AXIS_ARRAY] = {XAXIS_STEPS_PER_MM, YAXIS_STEPS_PER_MM, ZAXIS_STEPS_PER_MM, 1}; ///< Number of steps per mm needed.
 float Printer::invAxisStepsPerMM[E_AXIS_ARRAY]; ///< Inverse of axisStepsPerMM for faster conversion
@@ -1155,6 +1156,7 @@ void Printer::homeYAxis()
         PrintLine::moveRelativeDistanceInSteps(0,axisStepsPerMM[Y_AXIS] * -ENDSTOP_Y_BACK_MOVE * Y_HOME_DIR,0,0,homingFeedrate[Y_AXIS] / ENDSTOP_X_RETEST_REDUCTION_FACTOR,true,false);
         PrintLine::moveRelativeDistanceInSteps(0,axisStepsPerMM[Y_AXIS] * 2 * ENDSTOP_Y_BACK_MOVE * Y_HOME_DIR,0,0,homingFeedrate[Y_AXIS] / ENDSTOP_X_RETEST_REDUCTION_FACTOR,true,true);
         setHoming(false);
+        Serial.println("Alive?");
 #if defined(ENDSTOP_Y_BACK_ON_HOME)
         if(ENDSTOP_Y_BACK_ON_HOME > 0)
             PrintLine::moveRelativeDistanceInSteps(0,axisStepsPerMM[Y_AXIS] * -ENDSTOP_Y_BACK_ON_HOME * Y_HOME_DIR,0,0,homingFeedrate[Y_AXIS],true,false);
@@ -1229,9 +1231,12 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis)
     if(zaxis) homeZAxis();
     if(yaxis) homeYAxis();
 #elif HOMING_ORDER == HOME_ORDER_YXZ
+    Serial.println("Alive.");
     if(yaxis) homeYAxis();
+    Serial.println("Alive.");
     if(xaxis) homeXAxis();
     if(zaxis) homeZAxis();
+    Serial.println("Alive.");
 #elif HOMING_ORDER == HOME_ORDER_YZX
     if(yaxis) homeYAxis();
     if(zaxis) homeZAxis();

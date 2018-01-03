@@ -674,6 +674,7 @@ UI_MENU_FILESELECT(ui_menu_sd_fileselector, UI_MENU_SD_FILESELECTOR, 1)
 UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_sd_printfile, UI_TEXT_PRINT_FILE_ID,     UI_ACTION_SD_PRINT,    MENU_MODE_SD_MOUNTED,  MENU_MODE_SD_PRINTING)
 UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_sd_pause,     UI_TEXT_PAUSE_PRINT_ID,    UI_ACTION_SD_PAUSE,    MENU_MODE_SD_PRINTING, MENU_MODE_SD_PAUSED)
 UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_sd_continue,  UI_TEXT_CONTINUE_PRINT_ID, UI_ACTION_SD_CONTINUE, MENU_MODE_SD_PAUSED,   0)
+UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_sd_resume_print, UI_TEXT_RESUME_PRINT_ID, UI_ACTION_SD_RESUME_PRINT, MENU_MODE_SD_MOUNTED,  MENU_MODE_SD_PRINTING)
 // two versions of stop. Second is with security question since pausing can trigger stop with bad luck!
 //UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_sd_stop,      UI_TEXT_STOP_PRINT_ID,     UI_ACTION_SD_STOP,     MENU_MODE_SD_PRINTING, 0)
 UI_MENU_SUBMENU_FILTER_T(ui_menu_sd_stop, UI_TEXT_STOP_PRINT_ID, ui_menu_sd_askstop, MENU_MODE_SD_PRINTING, 0 )
@@ -691,7 +692,7 @@ UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_sd_mount, UI_TEXT_MOUNT_CARD_ID, UI_ACTIO
 #define UI_MOUNT_CMD ,&ui_menu_sd_unmount,&ui_menu_sd_mount
 #endif
 UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_sd_delete, UI_TEXT_DELETE_FILE_ID, UI_ACTION_SD_DELETE, MENU_MODE_SD_MOUNTED, MENU_MODE_SD_PRINTING)
-#define UI_MENU_SD {&ui_menu_sd_printfile,&ui_menu_sd_pause,&ui_menu_sd_continue,&ui_menu_sd_stop,&ui_menu_sd_stop_keep_heat, &ui_menu_sd_save_stop UI_MOUNT_CMD ,&ui_menu_sd_delete}
+#define UI_MENU_SD {&ui_menu_sd_printfile,&ui_menu_sd_pause,&ui_menu_sd_continue, /*&ui_menu_sd_stop,*/ &ui_menu_sd_stop_keep_heat, &ui_menu_sd_save_stop UI_MOUNT_CMD ,&ui_menu_sd_delete, &ui_menu_sd_resume_print}
 UI_MENU(ui_menu_sd, UI_MENU_SD, 7 + UI_MOUNT_CNT)
 UI_MENU_SUBMENU_T(ui_menu_sd_sub, UI_TEXT_SD_CARD_ID, ui_menu_sd)
 

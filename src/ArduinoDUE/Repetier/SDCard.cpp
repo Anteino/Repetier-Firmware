@@ -20,6 +20,8 @@
 */
 
 #include "Repetier.h"
+#include <avr/dtostrf.h>
+#include "floatToString.h"
 
 #if SDSUPPORT
 
@@ -57,8 +59,8 @@ void SDCard::automount()
         {
             UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_SD_INSERTED_ID));
             mount();
-            if(sdmode != 100) // send message only if we have success
-                Com::printFLN(PSTR("SD card inserted")); // Not translatable or host will not understand signal
+      if(sdmode != 100) // send message only if we have success
+              Com::printFLN(PSTR("SD card inserted")); // Not translatable or host will not understand signal
 #if UI_DISPLAY_TYPE != NO_DISPLAY
             if(sdactive && !uid.isWizardActive()) { // Wizards have priority
                 Printer::setAutomount(true);
@@ -78,22 +80,22 @@ void SDCard::initsd()
     if(READ(SDCARDDETECT) != SDCARDDETECTINVERTED)
         return;
 #endif
-    HAL::pingWatchdog();
-    HAL::delayMilliseconds(50); // wait for stabilization of contacts, bootup ...
+  HAL::pingWatchdog();
+  HAL::delayMilliseconds(50); // wait for stabilization of contacts, bootup ...
     fat.begin(SDSS, SPI_FULL_SPEED);  // dummy init of SD_CARD
     HAL::delayMilliseconds(50);       // wait for init end
-    HAL::pingWatchdog();
+  HAL::pingWatchdog();
     /*if(dir[0].isOpen())
         dir[0].close();*/
     if(!fat.begin(SDSS, SPI_FULL_SPEED))
     {
         Com::printFLN(Com::tSDInitFail);
-        sdmode = 100; // prevent automount loop!
+    sdmode = 100; // prevent automount loop!
         return;
     }
     sdactive = true;
     Printer::setMenuMode(MENU_MODE_SD_MOUNTED, true);
-    HAL::pingWatchdog();
+  HAL::pingWatchdog();
 
     fat.chdir();
     if(selectFile("init.g", true))
@@ -179,25 +181,111 @@ void SDCard::stopPrint(bool keepHeat)
     Printer::setMenuMode(MENU_MODE_SD_PRINTING,false);
     Printer::setMenuMode(MENU_MODE_SD_PAUSED,false);
     GCode::executeFString(PSTR(SD_RUN_ON_STOP));
+    Serial.println("Not dead yet.");
     Printer::homeAxis(true, true, false);
-    if(!keepHeat) {
-        Commands::waitUntilEndOfAllMoves();
-        Printer::kill(false);
+    Serial.println("Still not dead yet.");
+//    Commands::waitUntilEndOfAllMoves();
+    if(!keepHeat)
+    {
+        Extruder::setTemperatureForExtruder(0, 0);
+        Extruder::setTemperatureForExtruder(0, 1);
+        Extruder::setHeatedBedTemperature(0);
     }
+    Serial.println("this can't be happening");
 }
 
 //  This function stops the current print and creates a resume.g. Function was first created
 //  by TripodMaker and edited by Anteino. Inspired by Gemma.
-void SDCard::saveStopPrint()
+void SDCard::saveStopPrint(bool keepHeat)
 {
   SdBaseFile parent;
   parent = *fat.vwd();
 
   this->createResumeGemma();
+
+  float file_open = file.open(&parent, "resume.g", O_WRITE);
+  Com::printFLN(PSTR("file_open_success: "), file_open);
+  file.truncate(0);
+
+  char msg[128];
+  char buff[25];
   
-  this->stopPrint();
+  char bufX[11];
+  char bufY[11];
+  char bufZ[11];
+  char bufE[11];
+  char bufCoord[50];
+
+  dtostrf(Printer::realXPosition(),1,3,bufX);
+  dtostrf(Printer::realYPosition(),1,3,bufY);
+  dtostrf(Printer::realZPosition(),1,3,bufZ);
+  dtostrf(Printer::currentPositionSteps[E_AXIS]/Printer::axisStepsPerMM[E_AXIS],1,3,bufE);
+  
+  strcpy(bufCoord,"G1 X");
+  strcat(bufCoord,bufX);
+  strcat(bufCoord," Y");
+  strcat(bufCoord,bufY);
+  strcat(bufCoord," F4000\nG92 Z");
+  strcat(bufCoord,bufZ);
+  strcat(bufCoord,"\n");
+
+  int actualCurrentExtruder = Extruder::current->id;
+  float T_temp[2],  //  index 0 for extruder0 and 1 for extruder1
+        B_temp;
+  
+  Extruder::current = &extruder[0];
+  T_temp[0] = Extruder::current->tempControl.targetTemperatureC;
+  Extruder::current = &extruder[1];
+  T_temp[1] = Extruder::current->tempControl.targetTemperatureC;
+  Extruder::current = &extruder[actualCurrentExtruder];
+  B_temp = heatedBedController.targetTemperatureC;
+
+  for(int i = 0; i < 2; i++)
+  {
+    sprintf(msg, "M104 T%i S%s\n", i, floatToString(buff, T_temp[i], 2));
+    file.write(msg);
+  }
+  sprintf(msg, "M190 S%s\n", floatToString(buff, B_temp, 2));
+  file.write(msg);
+  for(int i = 0; i < 2; i++)
+  {
+    if(T_temp[i] > 0)
+    {
+      sprintf(msg, "M109 T%i S%s\n", i, floatToString(buff, T_temp[i], 2));
+      file.write(msg);
+    }
+  }
+  file.write("G28 XY\n");
+  sprintf(msg, "T%d\n", Extruder::current->id);
+  file.write(msg);
+  sprintf(msg, "M106 S%d\n", Printer::getFanSpeed());
+  file.write(msg);
+  sprintf(msg, "G92 E0\nG1 E13.5 F F150\nG92 E%s\n", floatToString(buff, Printer::currentPositionSteps[E_AXIS]/Printer::axisStepsPerMM[E_AXIS], 2));
+  file.write(msg);
+  file.write(bufCoord);
+  sprintf(msg, "M23 %s\n", Printer::current_filename);
+  file.write(msg);
+  sprintf(msg, "M26 S%lu\n", (unsigned long)sdpos);
+  file.write(msg);
+//  file.write("M24\n");
+
+  file.sync();
+  file.close();
+
+  Printer::updateCurrentPosition(true);
+  Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[E_AXIS] / Printer::axisStepsPerMM[E_AXIS] - 10.0, Printer::maxFeedrate[E_AXIS]);
+
+  Serial.println("Stopping print");
+  this->stopPrint(keepHeat);
+  Serial.println("Print actually stopped");
+//  if(keepHeat == false)
+//  {
+//    Printer::kill(false);
+//  }
 }
 
+//  Creates the resume.g file needed for saving before stopping a print. Function name
+//  inspired by Gemma.
 void SDCard::createResumeGemma()
 {
   SdBaseFile parent;
@@ -218,6 +306,39 @@ void SDCard::createResumeGemma()
     Com::printFLN(PSTR("File already exists."));
   }
   file.close();
+}
+
+/*
+ * Anteino 2-2-2018:  This function reads the resume.g file and prints it to the screen
+ * before executing the contents. It is needed to have this as a function on the LCD
+ * because you can't open another GCode file while currently having one opened. This
+ * function will also be called upon sending M50024. This function will however only read
+ * the first 1024 characters of the file, which should be enough for any resume.g
+ */
+void SDCard::resumeG_resume()
+{
+	SdBaseFile parent;
+	parent = *fat.vwd();
+  file.close();
+	float file_open = file.open(&parent, "resume.g", O_READ);
+  Com::printFLN(PSTR("file_open_success: "), file_open);
+  file.truncate(0);
+	Serial.println("Resuming print.");
+	if(file.isOpen())
+	{
+    char buffer_[1024];
+    if(file.available())
+    {
+      file.read(buffer_, 1024);
+    }
+    file.close();
+    Serial.write(buffer_);
+    GCode::executeFString(PSTR(buffer_));
+	}
+	else
+	{
+	  Serial.println("Opening resume.g failed");
+	}
 }
 
 void SDCard::writeCommand(GCode *code)
@@ -565,6 +686,10 @@ void SDCard::JSONFileInfo(const char* filename) {
 
 bool SDCard::selectFile(const char *filename, bool silent)
 {
+    for(int i=0;i<(LONG_FILENAME_LENGTH+1);i++)
+    {
+      Printer::current_filename[i] = filename[i];
+    }
     SdBaseFile parent;
     const char *oldP = filename;
 
@@ -590,7 +715,6 @@ bool SDCard::selectFile(const char *filename, bool silent)
         fileInfo.init(file);
 #endif
         sdpos = 0;
-        sdpos_saved = 0;
         filesize = file.fileSize();
         Com::printFLN(Com::tFileSelected);
         return true;
