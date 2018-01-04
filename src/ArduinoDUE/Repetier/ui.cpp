@@ -1805,9 +1805,9 @@ void UIDisplay::goDir(char *name)
     updateSDFileCount();
 #endif
 }
-/** write file names at current position to lcd */  //  <-- Note to self: be aware of the difference with loading the full contents of the sd card with and updating the current frame (which can of course only hold 4 filenames in case of the Itomec).
-void sdrefresh(uint16_t &r,char cache[UI_ROWS][MAX_COLS+1])
-{
+
+/** write file names at current position to lcd */
+void sdrefresh(uint16_t &r, char cache[UI_ROWS][MAX_COLS + 1]) {
 #if SDSUPPORT
     dir_t* p = NULL;
     uint16_t offset = uid.menuTop[uid.menuLevel];
@@ -1818,47 +1818,23 @@ void sdrefresh(uint16_t &r,char cache[UI_ROWS][MAX_COLS+1])
     root = sd.fat.vwd();
     root->rewind();
 
-   skip = (offset > 0 ? offset - 1 : 0);
+    skip = (offset > 0 ? offset - 1 : 0);
 
-    while (r + offset < nFilesOnCard + 1 && r < UI_ROWS && (p = root->getLongFilename(p, tempLongFilename, 0, NULL)))
-    {
+    while (r + offset < nFilesOnCard + 1 && r < UI_ROWS && (p = root->getLongFilename(p, tempLongFilename, 0, NULL))) {
         HAL::pingWatchdog();
         // done if past last used entry
         // skip deleted entry and entries for . and  ..
         // only list subdirectories and files
-        bool isFile = DIR_IS_FILE(p);
-        if ( isFile || DIR_IS_SUBDIR(p) )
-        {
-//            if(isFile)
-//            {
-//              String str(tempLongFilename);
-//              int gcodePos = str.indexOf(".gcode");
-//              int gPos = str.indexOf(".g");
-//              int nameLength = str.length();
-//              Serial.println(str + ": gcodePos + 6 = " + String(gcodePos + 6) + " ?= " + String(nameLength) + ".");
-//              if(gcodePos <= 0 || gPos <= 0)
-//              {
-//                Serial.println("I said continue.");
-//                nFilesOnCard--;
-//                continue;
-//              }
-//              else if(gcodePos + 6 != nameLength && gPos + 2 != nameLength)
-//              {
-//                Serial.println("I said continue.");
-//                nFilesOnCard--;
-//                continue;
-//              }
-//            }
-            if(uid.folderLevel >= SD_MAX_FOLDER_DEPTH && DIR_IS_SUBDIR(p) && !(p->name[0]=='.' && p->name[1]=='.'))
+        if ((DIR_IS_FILE(p) || DIR_IS_SUBDIR(p))) {
+            if(uid.folderLevel >= SD_MAX_FOLDER_DEPTH && DIR_IS_SUBDIR(p) && !(p->name[0] == '.' && p->name[1] == '.'))
                 continue;
-            if(skip > 0)
-            {
+            if(skip > 0) {
                 skip--;
                 continue;
             }
             uid.col = 0;
             if(r + offset == uid.menuPos[uid.menuLevel])
-                uid.printCols[uid.col++] = CHAR_SELECTOR;     //  Put an > in front of the selected entry
+                uid.printCols[uid.col++] = CHAR_SELECTOR;
             else
                 uid.printCols[uid.col++] = ' ';
             // print file name with possible blank fill
@@ -1868,7 +1844,7 @@ void sdrefresh(uint16_t &r,char cache[UI_ROWS][MAX_COLS+1])
             memcpy(uid.printCols + uid.col, tempLongFilename, length);
             uid.col += length;
             uid.printCols[uid.col] = 0;
-            strcpy(cache[r++],uid.printCols);
+            strcpy(cache[r++], uid.printCols);
         }
     }
 #endif
@@ -2333,21 +2309,21 @@ int UIDisplay::okAction(bool allowMoves)
     if(mtype == UI_MENU_TYPE_FILE_SELECTOR)
     {
       Serial.println("mtype == UI_MENU_TYPE_FILE_SELECTOR");
-//        if(menuPos[menuLevel] == 0)   // Selected back instead of file
-//        {
-//            return executeAction(UI_ACTION_BACK, allowMoves);
-//        }
+        if(menuPos[menuLevel] == 0)   // Selected back instead of file
+        {
+            return executeAction(UI_ACTION_BACK, allowMoves);
+        }
 
         if(!sd.sdactive)
             return 0;
-        uint8_t filePos = menuPos[menuLevel];
+        uint8_t filePos = menuPos[menuLevel] - 1;
         char filename[LONG_FILENAME_LENGTH + 1];
 
-        for(uint8_t i = 0; i < 15; i++)
-        {
-          getSDFilenameAt(i, filename);
-          Serial.println(filename);
-        }
+//        for(uint8_t i = 0; i < 15; i++)
+//        {
+//          getSDFilenameAt(i, filename);
+//          Serial.println(filename);
+//        }
 
         getSDFilenameAt(filePos, filename);
         if(isDirname(filename))   // Directory change selected

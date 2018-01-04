@@ -157,10 +157,45 @@ void SDCard::pausePrint(bool intern)
         Printer::lastCmdPos[Z_AXIS] = Printer::currentPosition[Z_AXIS];
         GCode::executeFString(PSTR(PAUSE_START_COMMANDS));
     }
+    int actualCurrentExtruder = Extruder::current->id;
+    float T_temp[2];  //  index 0 for extruder0 and 1 for extruder1
+    
+    Extruder::current = &extruder[0];
+    T_temp[0] = Extruder::current->tempControl.targetTemperatureC;
+    Extruder::current = &extruder[1];
+    T_temp[1] = Extruder::current->tempControl.targetTemperatureC;
+    Extruder::current = &extruder[actualCurrentExtruder];
+
+    if(T_temp[0] > 0)
+    {
+      Extruder::setTemperatureForExtruder(T_temp[0] - COOLDOWN_ON_PAUSE, 0);
+    }
+    if(T_temp[1] > 0)
+    {
+      Extruder::setTemperatureForExtruder(T_temp[1] - COOLDOWN_ON_PAUSE, 1);
+    }
 }
 
 void SDCard::continuePrint(bool intern)
 {
+    int actualCurrentExtruder = Extruder::current->id;
+    float T_temp[2];  //  index 0 for extruder0 and 1 for extruder1
+
+    Extruder::current = &extruder[0];
+    T_temp[0] = Extruder::current->tempControl.targetTemperatureC;
+    Extruder::current = &extruder[1];
+    T_temp[1] = Extruder::current->tempControl.targetTemperatureC;
+    Extruder::current = &extruder[actualCurrentExtruder];
+
+    if(T_temp[0] > 0)
+    {
+      Extruder::setTemperatureForExtruder(T_temp[0] + COOLDOWN_ON_PAUSE, 0, false, true);
+    }
+    if(T_temp[1] > 0)
+    {
+      Extruder::setTemperatureForExtruder(T_temp[1] + COOLDOWN_ON_PAUSE, 1, false, true);
+    }
+    
     if(!sd.sdactive) return;
     if(intern) {
         GCode::executeFString(PSTR(PAUSE_END_COMMANDS));
@@ -182,6 +217,8 @@ void SDCard::stopPrint(bool keepHeat)
     Printer::setMenuMode(MENU_MODE_SD_PAUSED,false);
     GCode::executeFString(PSTR(SD_RUN_ON_STOP));
     Serial.println("Not dead yet.");
+    Printer::updateCurrentPosition(true);
+    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
     Printer::homeAxis(true, true, false);
     Serial.println("Still not dead yet.");
 //    Commands::waitUntilEndOfAllMoves();
@@ -684,6 +721,22 @@ void SDCard::JSONFileInfo(const char* filename) {
 
 #endif
 
+/* Anteino 4-1-2018: This function checks if the char array and the string are equal for at
+ *  least the length of the string. Thereby resume.g and resume.gcode can both be compared
+ *  to resume.g
+ */
+bool compareCharString(const char *charArray, String string_)
+{
+  for(int i = 0; i < string_.length(); i++)
+  {
+    if(charArray[i] != string_[i])
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
 bool SDCard::selectFile(const char *filename, bool silent)
 {
     for(int i=0;i<(LONG_FILENAME_LENGTH+1);i++)
@@ -692,6 +745,15 @@ bool SDCard::selectFile(const char *filename, bool silent)
     }
     SdBaseFile parent;
     const char *oldP = filename;
+
+    if(compareCharString(filename, "RESUME.G"))
+    {
+      Com::printFLN(PSTR("RESUME.G file detected, starting resume script."));
+      GCode::executeFString(PSTR("M50024\n"));
+      sdpos = 0;
+      filesize = file.fileSize();
+      return true;
+    }
 
     if(!sdactive) return false;
     sdmode = 0;

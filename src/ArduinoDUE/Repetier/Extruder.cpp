@@ -587,11 +587,11 @@ void Extruder::selectExtruderById(uint8_t extruderId)
     if(extruderId >= NUM_EXTRUDER)
         extruderId = 0;
     Com::printFLN(PSTR("SelectExtruder:"), static_cast<int>(extruderId));
-    if(Printer::isHomed() && extruder[extruderId].zOffset < Extruder::current->zOffset) { // prevent extruder from hitting bed
-        Printer::offsetZ = -extruder[extruderId].zOffset * Printer::invAxisStepsPerMM[Z_AXIS];
-        Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-        Commands::waitUntilEndOfAllMoves();
-    }
+//    if(Printer::isHomed() && extruder[extruderId].zOffset < Extruder::current->zOffset) { // prevent extruder from hitting bed
+//        Printer::offsetZ = -extruder[extruderId].zOffset * Printer::invAxisStepsPerMM[Z_AXIS];
+//        Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+//        Commands::waitUntilEndOfAllMoves();
+//    }
     Printer::updateCurrentPosition(true);
 #if NUM_EXTRUDER > 1
     bool executeSelect = false;
