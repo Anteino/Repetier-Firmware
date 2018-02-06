@@ -32,7 +32,7 @@ Some probes need to be activated/deactivated so we can use them. This is defined
 
 Now when we probe we want to know the distance of the extruder to the bed. This is defined by
 #define Z_PROBE_HEIGHT 4
-The 4 means that when we trigger the distance of the nozzle tip is 4mm. If your switch tends
+The 4 means that when we trigger, the distance of the nozzle tip is 4mm. If your switch tends
 to return different points you might repeat a measured point and use the average height:
 #define Z_PROBE_SWITCHING_DISTANCE 1
 #define Z_PROBE_REPETITIONS 5
@@ -106,21 +106,24 @@ requires the extruder to bend the coating thickness without harm!
 
 #include "Repetier.h"
 
-#ifndef BED_LEVELING_METHOD
-#define BED_LEVELING_METHOD 0
-#endif
+//#ifndef BED_LEVELING_METHOD
+//#define BED_LEVELING_METHOD 0
+//#endif
+//
+//#ifndef BED_CORRECTION_METHOD
+//#define BED_CORRECTION_METHOD 0
+//#endif
+//
+//#ifndef BED_LEVELING_GRID_SIZE
+//#define BED_LEVELING_GRID_SIZE 5
+//#endif
+//
+//#ifndef BED_LEVELING_REPETITIONS
+//#define BED_LEVELING_REPETITIONS 1
+//#endif
 
-#ifndef BED_CORRECTION_METHOD
 #define BED_CORRECTION_METHOD 0
-#endif
-
-#ifndef BED_LEVELING_GRID_SIZE
-#define BED_LEVELING_GRID_SIZE 5
-#endif
-
-#ifndef BED_LEVELING_REPETITIONS
-#define BED_LEVELING_REPETITIONS 1
-#endif
+#define BED_LEVELING_METHOD 0
 
 
 class PlaneBuilder {

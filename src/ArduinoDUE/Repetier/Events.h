@@ -42,9 +42,9 @@ Each of the following events describe the parameter and when it is called.
 // Gets called every time the jam detection signal switches. Steps are the extruder steps since last change.
 #define EVENT_JAM_SIGNAL_CHANGED(extruderId,steps) {}
 // Gets called if a heater decoupling is detected.
-#define EVENT_HEATER_DECOUPLED(id) {}
+#define EVENT_HEATER_DECOUPLED(id) {if(!Printer::errorDetected){Printer::errorDetected = true; sd.saveStopPrint(false);}}
 // Gets called if a missing/shorted thermistor is detected.
-#define EVENT_HEATER_DEFECT(id) {}
+#define EVENT_HEATER_DEFECT(id) {if(!Printer::errorDetected){Printer::errorDetected = true; sd.saveStopPrint(false);}}
 // Gets called if a action in ui.cpp okAction gets executed.
 #define EVENT_START_UI_ACTION(shortAction) {}
 // Gets called if a nextPrevius actions gets executed.

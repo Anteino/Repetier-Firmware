@@ -69,9 +69,39 @@ enum bedLevelStates
   secondNozzle,
   finish
 };
-
 int bedLevelState = stopped;
-//float zPosition;
+
+enum levelOffsetStates
+{
+  stopped_ = 0,
+  heatup,
+//  knobs_1,
+  knobs_2_left,
+  knobs_2_right,
+  nozzle_right,
+  nozzle_left,
+  rerun,
+  finish_
+};
+int levelOffsetState = stopped_;
+
+enum filachangeStates
+{
+  filachange_stopped = 0,
+  filachange_choose,
+  filachange_set_old_temp,
+  filachange_set_new_temp,
+  filachange_change,
+  filachange_finish
+};
+int filachangeState = filachange_stopped;
+int filachangeExt = 0;    //  0 for left, 1 for right, 2 for both
+int filachangeActiveExt = 0;
+float filachangeSetTemp = 0.0;
+float filachangeOldTemp[] = {0.0, 0.0};
+float filachangeNewTemp[] = {0.0, 0.0};
+
+float cx, cy, cz, zProbeActivatedDistance[3];
 
 void beep(uint8_t duration,uint8_t count)
 {
@@ -1248,7 +1278,33 @@ void UIDisplay::parse(const char *txt,bool ram)
             }
             break;
         }
-        case 'a': // Acceleration settings
+        case 'a': // Acceleration settings. Also used for active knob
+            if(c2 == 'n')
+            {
+              if(Printer::activeKnob == LEFT)
+              {
+                addStringP(Com::translatedF(UI_TEXT_LEFT_ID));
+              }
+              else if(Printer::activeKnob == RIGHT)
+              {
+                addStringP(Com::translatedF(UI_TEXT_RIGHT_ID));
+              }
+            }
+            else if(c2 == 'd')
+            {
+              addFloat(abs(Printer::turnDegrees), 3, 0);
+            }
+            else if(c2 == 'c')
+            {
+              if(Printer::turnDegrees < 0.0)
+              {
+                addStringP(Com::translatedF(UI_TEXT_COUNTER_CLOCKWISE_ID));
+              }
+              else
+              {
+                addStringP(Com::translatedF(UI_TEXT_CLOCKWISE_ID));
+              }
+            }
             if(c2 >= 'x' && c2 <= 'z')       addFloat(Printer::maxAccelerationMMPerSquareSecond[c2 - 'x'], 5, 0);
             else if(c2 >= 'X' &&  c2 <= 'Z') addFloat(Printer::maxTravelAccelerationMMPerSquareSecond[c2-'X'], 5, 0);
             else if(c2 == 'j') addFloat(Printer::maxJerk, 3, 1);
@@ -1259,6 +1315,44 @@ void UIDisplay::parse(const char *txt,bool ram)
             {
                 addFloat(Printer::zBedOffset, 3, 2);
                 break;
+            }
+            break;
+        case 'c':   //  Solely used for filament change wizard
+            if(c2 == 'a')   //  Active extruder
+            {
+              switch(filachangeExt)
+              {
+                case 0:
+                  addStringP(Com::translatedF(UI_TEXT_LEFT_ID));
+                  break;
+                case 1:
+                  addStringP(Com::translatedF(UI_TEXT_RIGHT_ID));
+                  break;
+                case 2:
+                  addStringP(Com::translatedF(UI_TEXT_BOTH_ID));
+                  break;
+                default:
+                  break;
+              }
+            }
+            else if(c2 == 'e')
+            {
+              if(filachangeExt < 2)
+              {
+                addStringP(Com::translatedF(UI_TEXT_FILACHANGE_SINGLE_EXTRUDER_ID));
+              }
+              else
+              {
+                addStringP(Com::translatedF(UI_TEXT_FILACHANGE_BOTH_EXTRUDERS_ID));
+              }
+            }
+            else if(c2 == 't')
+            {
+              addFloat(filachangeSetTemp, 3, 0);
+            }
+            else if(c2 == 'T')
+            {
+              addFloat(extruder[filachangeActiveExt].tempControl.targetTemperatureC, 3, 0);
             }
             break;
         case 'd':  // debug boolean
@@ -1282,7 +1376,7 @@ void UIDisplay::parse(const char *txt,bool ram)
             }
 #endif
             break;
-        case 'e': // Extruder temperature
+        case 'e': // Extruder temperature / trivial name
         {
             if(c2 == 'I')
             {
@@ -1348,6 +1442,17 @@ void UIDisplay::parse(const char *txt,bool ram)
             }
             addFloat(fvalue, 3, ivalue);
             break;
+          if(c2 == 'n') //  Trivial extruder name
+          {
+            if(Extruder::current->id == 0)
+            {
+              addStringP(Com::translatedF(UI_TEXT_LEFT_ID));
+            }
+            else if(Extruder::current->id == 1)
+            {
+              addStringP(Com::translatedF(UI_TEXT_RIGHT_ID));
+            }
+          }
         }
         case 'E': // Target extruder temperature
             if(c2 == 'c') fvalue = Extruder::current->tempControl.targetTemperatureC;
@@ -1575,6 +1680,7 @@ void UIDisplay::parse(const char *txt,bool ram)
                     fvalue = Printer::realYPosition();
                 else if(c2=='2')
                     fvalue = Printer::realZPosition();
+//                    fvalue = (float)Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS];
                 else
                     fvalue = (float)Printer::currentPositionSteps[E_AXIS] * Printer::invAxisStepsPerMM[E_AXIS];
                 addFloat(fvalue,4,2);
@@ -1658,12 +1764,10 @@ void UIDisplay::parse(const char *txt,bool ram)
             else if(c2=='y')
             {
                 addFloat(Extruder::current->yOffset * Printer::invAxisStepsPerMM[Y_AXIS], 3, 2);
-				Serial.println("Updated Y.");
             }
             else if(c2=='z')
             {
                 addFloat(Extruder::current->zOffset * Printer::invAxisStepsPerMM[Z_AXIS], 3, 2);
-				Serial.println("Updated Z.");
             }
             else if(c2=='f')
             {
@@ -1780,7 +1884,6 @@ bool UIDisplay::isDirname(char *name)
 
 void UIDisplay::goDir(char *name)
 {
-  Serial.println("Opened dir: " + String(name));
 #if SDSUPPORT
     char *p = cwd;
     while(*p)p++;
@@ -2265,7 +2368,6 @@ void UIDisplay::pushMenu(const UIMenu *men, bool refresh)
         UIMenuEntry *ent =(UIMenuEntry *)pgm_read_word(&(entries[0]));
         uint16_t entAction = pgm_read_word(&(ent->action));
         menuPos[menuLevel] = entAction == UI_ACTION_BACK ? 1 : 0; // if top entry is back, default to next useful item
-        Serial.println("Adding UI_ACTION_BACK: " + String(entAction == UI_ACTION_BACK ? 1 : 0) + ".");
     }
     if(refresh)
         refreshPage();
@@ -2280,7 +2382,6 @@ void UIDisplay::popMenu(bool refresh)
 }
 int UIDisplay::okAction(bool allowMoves)
 {
-  Serial.println("Ok action");
     if(Printer::isUIErrorMessage())
     {
         Printer::setUIErrorMessage(false);
@@ -2290,7 +2391,6 @@ int UIDisplay::okAction(bool allowMoves)
 #if UI_HAS_KEYS == 1
     if(menuLevel == 0)   // Enter menu
     {
-      Serial.println("Enter menu.");
         menuLevel = 1;
         menuTop[1] = 0;
         menuPos[1] =  UI_MENU_BACKCNT; // if top entry is back, default to next useful item
@@ -2305,10 +2405,8 @@ int UIDisplay::okAction(bool allowMoves)
     unsigned char entType;
     unsigned int action;
 #if SDSUPPORT
-    Serial.println("Not dead 1.");
     if(mtype == UI_MENU_TYPE_FILE_SELECTOR)
     {
-      Serial.println("mtype == UI_MENU_TYPE_FILE_SELECTOR");
         if(menuPos[menuLevel] == 0)   // Selected back instead of file
         {
             return executeAction(UI_ACTION_BACK, allowMoves);
@@ -2319,16 +2417,9 @@ int UIDisplay::okAction(bool allowMoves)
         uint8_t filePos = menuPos[menuLevel] - 1;
         char filename[LONG_FILENAME_LENGTH + 1];
 
-//        for(uint8_t i = 0; i < 15; i++)
-//        {
-//          getSDFilenameAt(i, filename);
-//          Serial.println(filename);
-//        }
-
         getSDFilenameAt(filePos, filename);
         if(isDirname(filename))   // Directory change selected
         {
-          Serial.println("isDirname(filename)");
             goDir(filename);
             menuTop[menuLevel] = 0;
             menuPos[menuLevel] = 0;
@@ -2349,12 +2440,10 @@ int UIDisplay::okAction(bool allowMoves)
         }
         sd.file.close();
         sd.fat.chdir(cwd);
-        Serial.println("shortAction: " + String(shortAction) + ".");
         EVENT_START_UI_ACTION(shortAction);
         switch(shortAction)
         {
         case UI_ACTION_SD_PRINT:
-            Serial.println("UI_ACTION_SD_PRINT");
             if (sd.selectFile(filename, false))
             {
                 sd.startPrint();
@@ -2386,18 +2475,12 @@ int UIDisplay::okAction(bool allowMoves)
     }
 #endif
     entries = (UIMenuEntry**)pgm_read_word(&(men->entries));
-    for(int i = 0; i < sizeof(entries); i++)
-    {
-      Serial.println("Action: " + String(entries[i]->action) + ".");
-    }
     ent =(UIMenuEntry *)pgm_read_word(&(entries[menuPos[menuLevel]]));
     entType = pgm_read_byte(&(ent->entryType));// 0 = Info, 1 = Headline, 2 = submenu ref, 3 = direct action command, 4 = modify action
     action = pgm_read_word(&(ent->action));
-    Serial.println("entType: " + String(entType) + ".");
     if(mtype == UI_MENU_TYPE_MODIFICATION_MENU)   // action menu
     {
         action = pgm_read_word(&(men->id));
-        Serial.println("finishAction");
         finishAction(action);
         return executeAction(UI_ACTION_BACK, true);
     }
@@ -2441,7 +2524,6 @@ int UIDisplay::okAction(bool allowMoves)
             break;
         case UI_ACTION_WIZARD_BED_LEVEL:    // knob clicked callback
             bedLevelState++;
-            float cx, cy, cz;
             switch(bedLevelState)
             {
               case firstStage:
@@ -2459,7 +2541,7 @@ int UIDisplay::okAction(bool allowMoves)
               case secondStage:
                 Printer::updateCurrentPosition(true);
                 Printer::realPosition(cx, cy, cz);
-                Extruder::current->zOffset += (int)((cz - 5.0) * Printer::axisStepsPerMM[Z_AXIS]);
+                Extruder::current->zCalib += (int)((cz - 5.0) * Printer::axisStepsPerMM[Z_AXIS]);
                 Printer::offsetZ += cz - 5.0;
                 EEPROM::storeDataIntoEEPROM();
                 Printer::updateCurrentPosition(true);
@@ -2494,9 +2576,8 @@ int UIDisplay::okAction(bool allowMoves)
               case finish:
                 Printer::updateCurrentPosition(true);
                 Printer::realPosition(cx, cy, cz);
-                Extruder::current->zOffset += (int)((cz - 5.0) * Printer::axisStepsPerMM[Z_AXIS]);
+                Extruder::current->zCalib += (int)((cz - 5.0) * Printer::axisStepsPerMM[Z_AXIS]);
                 Printer::offsetZ += cz - 5.0;
-                Serial.println("Current extruder: " + String(Extruder::current->id) + ", offset: " + String(Printer::offsetZ) + ", dOffset: " + String(cz - 5.0) + ".");
                 EEPROM::storeDataIntoEEPROM();
                 Extruder::selectExtruderById(1);
                 Printer::updateCurrentPosition(true);
@@ -2512,6 +2593,109 @@ int UIDisplay::okAction(bool allowMoves)
               default:
                 break;
             }
+            break;
+        case UI_ACTION_LEVEL_OFFSET:  //  Knob clicked callback
+            levelOffsetState++;
+            Printer::updateCurrentPosition(true);
+            Printer::realPosition(cx, cy, cz);
+            popMenu(false);
+            switch(levelOffsetState)
+            {
+//              case knobs_1:
+//                pushMenu(&ui_level_offset_turn_knobs_1, true);
+//                break;
+              case knobs_2_left: case knobs_2_right:
+                pushMenu(&ui_level_offset_await_instructions, true);
+                if(levelOffsetState == knobs_2_left)
+                {
+                  Printer::activeKnob = LEFT;
+                  Printer::moveTo(140.0 - Z_PROBE_X_OFFSET, IGNORE_COORDINATE, zProbeActivatedDistance[0] + Z_PROBE_SWITCHING_DISTANCE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+                  zProbeActivatedDistance[1] = UIDisplay::getProbeActivatedDistance();
+                  if(abs(zProbeActivatedDistance[1] - zProbeActivatedDistance[0]) >= 0.05)
+                  {
+                    levelOffsetState--;
+                    Printer::turnDegrees = 360.0 / 0.8 * (zProbeActivatedDistance[1] - zProbeActivatedDistance[0]);
+                    pushMenu(&ui_level_offset_turn_knobs_1, true);
+                  }
+                  else
+                  {
+                    pushMenu(&ui_level_offset_turn_knobs_2, true);
+                  }
+                }
+                else if(levelOffsetState == knobs_2_right)
+                {
+                  Printer::activeKnob = RIGHT;
+                  Printer::moveTo(480.0 - Z_PROBE_X_OFFSET, IGNORE_COORDINATE, zProbeActivatedDistance[0] + Z_PROBE_SWITCHING_DISTANCE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+                  zProbeActivatedDistance[2] = UIDisplay::getProbeActivatedDistance();
+                  if(abs(zProbeActivatedDistance[2] - zProbeActivatedDistance[0]) >= 0.05)
+                  {
+                    levelOffsetState--;
+                    Printer::turnDegrees = 360.0 / 0.8 * (zProbeActivatedDistance[2] - zProbeActivatedDistance[0]);
+                    pushMenu(&ui_level_offset_turn_knobs_1, true);
+                  }
+                  else
+                  {
+                    pushMenu(&ui_level_offset_turn_knobs_2, true);
+                  }
+                }
+//                Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, zProbeActivatedDistance[0], IGNORE_COORDINATE, 0.5);
+//                Commands::waitUntilEndOfAllMoves();
+//                popMenu(false);
+//                if(Endstops::zMin())
+//                {
+//                  pushMenu(&ui_level_offset_turn_error, true);
+//                  Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, zProbeActivatedDistance[0] + Z_PROBE_SWITCHING_DISTANCE, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
+//                  Commands::waitUntilEndOfAllMoves();
+//                  levelOffsetState--;
+//                }
+//                else
+//                {
+//                  pushMenu(&ui_level_offset_turn_knobs_2, true);
+//                }
+                break;
+              case nozzle_right:
+                pushMenu(&ui_level_offset_nozzle, true);
+                Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, 8.0, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
+                Printer::moveTo(310.0, 398.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+                Commands::waitUntilEndOfAllMoves();
+                Printer::updateCurrentPosition(true);
+                break;
+              case nozzle_left:
+                pushMenu(&ui_level_offset_await_instructions, true);
+                Printer::updateCurrentPosition(true);
+                Printer::realPosition(cx, cy, cz);
+                Extruder::current->zCalib += (int)((cz - 5.0) * Printer::axisStepsPerMM[Z_AXIS]);
+                Printer::offsetZ += cz - 5.0;
+                EEPROM::storeDataIntoEEPROM();
+                Extruder::selectExtruderById(0);
+                Printer::moveTo(310.0, 398.0, 8.0, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+                Commands::waitUntilEndOfAllMoves();
+                Printer::updateCurrentPosition(true);
+                popMenu(false);
+                pushMenu(&ui_level_offset_nozzle, true);
+                break;
+              case rerun:
+                pushMenu(&ui_level_offset_rerun, true);
+                Printer::updateCurrentPosition(true);
+                Printer::realPosition(cx, cy, cz);
+                Extruder::current->zCalib += (int)((cz - 5.0) * Printer::axisStepsPerMM[Z_AXIS]);
+                Printer::offsetZ += cz - 5.0;
+                EEPROM::storeDataIntoEEPROM();
+                break;
+              case finish_:
+                Printer::activeKnob = -1;
+                Printer::levelOffset = false;
+                Printer::moveTo(0.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+                popMenu(true);
+                levelOffsetState = stopped_;
+                //  Maybe auto start native repetier probe based bed leveling here?
+                break;
+              default:
+                break;
+            }
+            break;
+        case UI_ACTION_FILACHANGE:
+            this->filachange(CLICK_ACTION, 0);
             break;
 #if EXTRUDER_JAM_CONTROL
         case UI_ACTION_WIZARD_JAM_REHEAT: // user saw problem and takes action
@@ -2546,7 +2730,6 @@ int UIDisplay::okAction(bool allowMoves)
     }
     if(entType == 3)
     {
-      Serial.println("executeAction: " + String(action) + ".");
         return executeAction(action, allowMoves);
     }
     return executeAction(UI_ACTION_BACK, allowMoves);
@@ -2557,6 +2740,135 @@ int UIDisplay::okAction(bool allowMoves)
 
 // this version not have single byte variable rollover bug
 #define INCREMENT_MIN_MAX(a,steps,_min,_max) a = constrain((a + increment*steps), _min, _max);
+
+void UIDisplay::filachange(int action_, int increment_)
+{
+  switch(filachangeState)
+  {
+    case filachange_stopped:
+      if(action_ == EXECUTE_ACTION)   //  Menu activated "callback"
+      {
+        pushMenu(&ui_filachange_choose_ext, true);
+        filachangeState++;
+      }
+      break;
+    case filachange_choose:
+      if(action_ == ROTATE_ACTION)
+      {
+        filachangeExt += increment_;
+        if(filachangeExt < 0)
+        {
+          filachangeExt = 2;
+        }
+        else if(filachangeExt > 2)
+        {
+          filachangeExt = 0;
+        }
+      }
+      else if(action_ == CLICK_ACTION)
+      {
+        popMenu(false);
+        pushMenu(&ui_filachange_await_instructions, true);
+        filachangeActiveExt = filachangeExt % 2;
+        Extruder::selectExtruderById(filachangeActiveExt);
+        Printer::moveTo(310.0, 98.0, 498.0, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+        Commands::waitUntilEndOfAllMoves();
+        Printer::updateCurrentPosition(true);
+        filachangeState++;
+        popMenu(false);
+        filachangeSetTemp = Printer::oldTempExt[filachangeActiveExt];
+        Extruder::setTemperatureForExtruder(filachangeSetTemp, filachangeActiveExt, false, false);
+        pushMenu(&ui_filachange_old_temp, true);
+      }
+      break;
+    case filachange_set_old_temp:
+      if(action_ == ROTATE_ACTION)
+      {
+        filachangeSetTemp += 5.0 * (float)increment_;
+        if(filachangeSetTemp < 170.0)
+        {
+          filachangeSetTemp = 170.0;
+        }
+        else if(filachangeSetTemp > 300.0)
+        {
+          filachangeSetTemp = 300.0;
+        }
+      }
+      else if(action_ == CLICK_ACTION)
+      {
+        Printer::oldTempExt[filachangeActiveExt] = filachangeSetTemp;
+        popMenu(false);
+        pushMenu(&ui_filachange_new_temp, true);
+        filachangeSetTemp = 190.0;
+        filachangeState++;
+      }
+      break;
+    case filachange_set_new_temp:
+      if(action_ == ROTATE_ACTION)
+      {
+        filachangeSetTemp += 5.0 * (float)increment_;
+        if(filachangeSetTemp < 170.0)
+        {
+          filachangeSetTemp = 170.0;
+        }
+        else if(filachangeSetTemp > 300.0)
+        {
+          filachangeSetTemp = 300.0;
+        }
+      }
+      else if(action_ == CLICK_ACTION)
+      {
+        float tmp = filachangeSetTemp;
+        if(Printer::oldTempExt[filachangeActiveExt] > filachangeSetTemp)
+        {
+          filachangeSetTemp = Printer::oldTempExt[filachangeActiveExt];
+        }
+        Printer::oldTempExt[filachangeActiveExt] = tmp;
+        popMenu(false);
+        pushMenu(&ui_filachange_change, true);
+        Extruder::setTemperatureForExtruder(filachangeSetTemp, filachangeActiveExt, false, true);
+        Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[E_AXIS] * Printer::invAxisStepsPerMM[E_AXIS] - 100.0, 10.0);
+        Commands::waitUntilEndOfAllMoves();
+        filachangeState++;
+      }
+      break;
+    case filachange_change:
+      if(action_ == ROTATE_ACTION)
+      {
+        Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[E_AXIS] * Printer::invAxisStepsPerMM[E_AXIS] + (float)increment_ * 5.0, 5.0);
+        Commands::waitUntilEndOfAllMoves();
+      }
+      else if(action_ == CLICK_ACTION)
+      {
+        Extruder::setTemperatureForExtruder(filachangeSetTemp, filachangeActiveExt, false, false);
+        if(filachangeExt == 2)
+        {
+          filachangeExt = 1;
+          filachangeState = filachange_choose;
+          this->filachange(CLICK_ACTION, 0);
+        }
+        else
+        {
+          popMenu(false);
+          pushMenu(&ui_filachange_finish, true);
+          EEPROM::storeDataIntoEEPROM();
+          filachangeState++;
+        }
+      }
+      break;
+    case filachange_finish:
+      if(action_ == CLICK_ACTION)
+      {
+        Extruder::selectExtruderById(0);
+        Printer::homeAxis(true, true, false);
+        filachangeState = filachange_stopped;
+        popMenu(true);
+      }
+      break;
+    default:
+      break;
+  }
+}
 
 void UIDisplay::adjustMenuPos()
 {
@@ -2723,7 +3035,6 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
         shift = -2; // reset shift position
         char filename[LONG_FILENAME_LENGTH + 1];
         getSDFilenameAt(menuPos[menuLevel], filename);
-        Serial.println("Knob turned to: " + String(filename) + ".");
         return true;
     }
 #endif
@@ -2829,7 +3140,7 @@ ZPOS2:
         Commands::waitUntilEndOfAllMoves();
         Extruder::current->disableCurrentExtruderMotor();
         break;
-    case UI_ACTION_WIZARD_BED_LEVEL:      // knob turned callback
+    case UI_ACTION_WIZARD_BED_LEVEL:  // knob turned callback
         switch(bedLevelState)
         {
           case firstStage:
@@ -2843,7 +3154,7 @@ ZPOS2:
             }
             else
             {
-              if(Printer::currentPosition[Z_AXIS] > Z_PROBE_BED_DISTANCE)
+              if(Printer::currentPosition[Z_AXIS] > 0)
               {
                 PrintLine::moveRelativeDistanceInStepsReal(0,0,Printer::axisStepsPerMM[Z_AXIS] * increment/20,0,Printer::homingFeedrate[Z_AXIS],true,false);
                 Printer::setNoDestinationCheck(false);
@@ -2851,26 +3162,32 @@ ZPOS2:
             }
             break;
           case secondNozzle:
-          if(increment > 0)
-          {
-            if(Printer::currentPosition[Z_AXIS] < (Z_PROBE_BED_DISTANCE + Z_PROBE_HEIGHT))
+            if(increment > 0)
             {
-              PrintLine::moveRelativeDistanceInStepsReal(0,0,Printer::axisStepsPerMM[Z_AXIS] * increment/20,0,Printer::homingFeedrate[Z_AXIS],true,false);
-              Printer::setNoDestinationCheck(false);
+              if(Printer::currentPosition[Z_AXIS] < (Z_PROBE_BED_DISTANCE + Z_PROBE_HEIGHT))
+              {
+                PrintLine::moveRelativeDistanceInStepsReal(0,0,Printer::axisStepsPerMM[Z_AXIS] * increment/20,0,Printer::homingFeedrate[Z_AXIS],true,false);
+                Printer::setNoDestinationCheck(false);
+              }
             }
-          }
-          else
-          {
-            if(Printer::currentPosition[Z_AXIS] > Z_PROBE_BED_DISTANCE)
+            else
             {
-              PrintLine::moveRelativeDistanceInStepsReal(0,0,Printer::axisStepsPerMM[Z_AXIS] * increment/20,0,Printer::homingFeedrate[Z_AXIS],true,false);
-              Printer::setNoDestinationCheck(false);
+              if(Printer::currentPosition[Z_AXIS] > 0)
+              {
+                PrintLine::moveRelativeDistanceInStepsReal(0,0,Printer::axisStepsPerMM[Z_AXIS] * increment/20,0,Printer::homingFeedrate[Z_AXIS],true,false);
+                Printer::setNoDestinationCheck(false);
+              }
             }
-          }
             break;
           default:
             break;
         }
+        break;
+    case UI_ACTION_LEVEL_OFFSET:
+        PrintLine::moveRelativeDistanceInStepsReal(0,0,Printer::axisStepsPerMM[Z_AXIS] * increment / 20,0,Printer::homingFeedrate[Z_AXIS],true,false);
+        break;
+    case UI_ACTION_FILACHANGE:
+        this->filachange(ROTATE_ACTION, increment);
         break;
 #endif
     case UI_ACTION_Z_BABYSTEPS:
@@ -2885,6 +3202,7 @@ ZPOS2:
             InterruptProtectedBlock noint;
             Printer::zBabystepsMissing += increment * BABYSTEP_MULTIPLICATOR;
             zBabySteps += increment * BABYSTEP_MULTIPLICATOR;
+            Printer::babysteps += increment * BABYSTEP_MULTIPLICATOR;
         }
     }
 #endif
@@ -3171,7 +3489,6 @@ void UIDisplay::finishAction(unsigned int action)
 // action can behave differently. Other actions do always the same like home, disable extruder etc.
 int UIDisplay::executeAction(unsigned int action, bool allowMoves)
 {
-  Serial.println("action: " + String(action) + ".");
     int ret = 0;
 #if UI_HAS_KEYS == 1
     if(action & UI_ACTION_TOPMENU)   // Go to start menu
@@ -3437,6 +3754,7 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
             else sd.saveStopPrint(false);
             break;
         case UI_ACTION_SD_RESUME_PRINT:
+            popMenu(true);
             if(!allowMoves) ret = UI_ACTION_SD_RESUME_PRINT;
             else GCode::executeFString(PSTR("M50024\n"));
             break;
@@ -3567,7 +3885,7 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
             pushMenu(&UI_USERMENU10, false);
             break;
 #endif
-        case UI_ACTION_WIZARD_BED_LEVEL:  //  Menu activated callback
+        case UI_ACTION_WIZARD_BED_LEVEL:
             BEEP_LONG;
             if(bedLevelState == stopped)
             {
@@ -3575,6 +3893,35 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
               pushMenu(&ui_wiz_bed_level, true);
             }
         break;
+        case UI_ACTION_LEVEL_OFFSET:  //  Menu activated callback
+          BEEP_LONG;
+          if(levelOffsetState == stopped_)
+          {
+            Commands::waitUntilEndOfAllMoves();
+            Printer::levelOffset = true;
+            levelOffsetState = heatup;
+            Extruder::setTemperatureForExtruder(190, 0, false, false);
+            Extruder::setTemperatureForExtruder(190, 1, false, false);
+            Extruder::setHeatedBedTemperature(60, false);
+            pushMenu(&ui_level_offset_heatup, true);
+            Printer::homeAxis(true, true, true);
+            Printer::updateCurrentPosition(true);
+            Commands::waitUntilEndOfAllMoves();
+            Extruder::selectExtruderById(1);
+            Commands::waitUntilEndOfAllMoves();
+            Printer::updateCurrentPosition(true);
+            Printer::moveTo(310.0 - Z_PROBE_X_OFFSET, 398.0, PROBE_FIRST_TRY_DISTANCE, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
+            Commands::waitUntilEndOfAllMoves();
+            zProbeActivatedDistance[0] = getProbeActivatedDistance();
+            Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, cz + Z_PROBE_SWITCHING_DISTANCE, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
+            Printer::moveTo(140.0 - Z_PROBE_X_OFFSET, 98.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+            Commands::waitUntilEndOfAllMoves();
+          }
+          break;
+      case UI_ACTION_FILACHANGE:
+            BEEP_LONG;
+            this->filachange(EXECUTE_ACTION, 0);
+          break;
 #if FEATURE_RETRACTION
         case UI_ACTION_WIZARD_FILAMENTCHANGE: //  Menu activated callback
         {
@@ -3979,6 +4326,30 @@ void UIDisplay::slowAction(bool allowMoves)
         refreshPage();
         lastRefresh = time;
     }
+}
+
+float UIDisplay::getProbeActivatedDistance()
+{
+  int iterations = 10;
+  float movingSpeed = Printer::maxFeedrate[Z_AXIS];
+  float value = 0.0;
+  for(int i = 0; i < iterations; i++)
+  {
+    Printer::updateCurrentPosition(true);
+    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, PROBE_FIRST_TRY_DISTANCE, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
+    Commands::waitUntilEndOfAllMoves();
+    Printer::updateCurrentPosition(true);
+    Printer::realPosition(cx, cy, cz);
+    int steps_ = (int)(-cz * Printer::axisStepsPerMM[Z_AXIS]);
+    int oldSteps = Printer::currentPositionSteps[Z_AXIS];
+    char msg[128];
+    PrintLine::moveRelativeDistanceInSteps(0, 0, steps_, 0, movingSpeed, true, true, true);
+    Printer::currentPositionSteps[Z_AXIS] = oldSteps + steps_ + Printer::stepsRemainingAtZHit;
+    Printer::updateCurrentPosition(true);
+    Printer::realPosition(cx, cy, cz);
+    value += cz;
+  }
+  return value / (float)iterations;
 }
 
 

@@ -972,15 +972,23 @@ void Commands::processMCode(GCode *com) {
             sd.pausePrint();
             break;
         case 26: //M26 - Set SD index
-            if(com->hasS())
-            {
-                sd.setIndex(com->S);
-            }
-            else
-            {
-              Serial.println("Going back to come back point.");
-              sd.setIndex(sd.sdpos_saved);
-            }
+			if(sd.sdmode != 1)
+			{
+			  Com::printFLN(PSTR("Impossible to create a comeback point when sd card is not active."));
+			}
+			else
+			{
+				if(com->hasS())
+				{
+				  Com::printFLN(PSTR("Setting comeback point."));
+				  sd.setIndex(com->S);
+				}
+				else
+				{
+				  Com::printFLN(PSTR("Going back to comeback point."));
+				  sd.setIndex(sd.sdpos_saved);
+				}
+	        }
             break;
         case 27: //M27 - Get SD status
             sd.printStatus();
@@ -1439,6 +1447,16 @@ void Commands::processMCode(GCode *com) {
 #endif
             break;
 #if defined(BEEPER_PIN) && BEEPER_PIN>=0
+        case 290: //  Babystep
+            if(com->hasZ())
+            {
+              if(abs(com->Z) < (32700 - labs(Printer::zBabystepsMissing)) * Printer::axisStepsPerMM[Z_AXIS])
+              {
+                Printer::zBabystepsMissing += com->Z * Printer::axisStepsPerMM[Z_AXIS];
+                Printer::babysteps += com->Z * Printer::axisStepsPerMM[Z_AXIS];
+              }
+            }
+            break;
         case 300: { // M300
                 int beepS = 1;
                 int beepP = 1000;

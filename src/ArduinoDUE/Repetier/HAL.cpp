@@ -299,7 +299,7 @@ void HAL::spiBegin()
       g_APinDescription[SPI_PIN].ulPinType,
       g_APinDescription[SPI_PIN].ulPin,
       g_APinDescription[SPI_PIN].ulPinConfiguration);
-    spiInit(1);
+    spiInit(4);
 }
 // spiClock is 0 to 6, relecting AVR clock dividers 2,4,8,16,32,64,128
 // Due can only go as slow as AVR divider 32 -- slowest Due clock is 329,412 Hz

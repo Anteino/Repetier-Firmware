@@ -24,6 +24,15 @@ volatile int Printer::extruderStepsNeeded; ///< This many extruder steps are sti
 //uint8_t Printer::extruderAccelerateDelay;     ///< delay between 2 speec increases
 #endif
 char  Printer::current_filename[LONG_FILENAME_LENGTH + 1];
+int32_t Printer::activeKnob = -1;
+bool Printer::levelOffset = false;
+bool Printer::errorDetected = false;
+float Printer::lastActiveTemp[] = {0.0, 0.0, 0.0};
+int Printer::babysteps = 0;
+float Printer::turnDegrees = 0.0;
+float Printer::oldTempExt[] = {0.0, 0.0};
+
+
 //Stepper Movement Variables
 float Printer::axisStepsPerMM[E_AXIS_ARRAY] = {XAXIS_STEPS_PER_MM, YAXIS_STEPS_PER_MM, ZAXIS_STEPS_PER_MM, 1}; ///< Number of steps per mm needed.
 float Printer::invAxisStepsPerMM[E_AXIS_ARRAY]; ///< Inverse of axisStepsPerMM for faster conversion
@@ -343,7 +352,6 @@ void Printer::setFanSpeedDirectly(uint8_t speed, uint8_t id)
     #endif
     pwm_pos[finalId] = speed;
   #endif
-	Serial.println("Fan " + String(id) + " with finalId: " + String(finalId) + " was set to speed: " + String(pwm_pos[finalId]) + ".");
 }
 
 void Printer::setCaseFanSpeedDirectly(int speed)
@@ -979,7 +987,7 @@ SET_OUTPUT(CASE_FAN_PIN);
     Commands::writeLowestFreeRAM();
     HAL::setupTimer();
 
-//    Extruder::selectExtruderById(0);
+    Extruder::selectExtruderById(0);
 #if FEATURE_WATCHDOG
     HAL::startWatchdog();
 #endif // FEATURE_WATCHDOG
@@ -1156,7 +1164,6 @@ void Printer::homeYAxis()
         PrintLine::moveRelativeDistanceInSteps(0,axisStepsPerMM[Y_AXIS] * -ENDSTOP_Y_BACK_MOVE * Y_HOME_DIR,0,0,homingFeedrate[Y_AXIS] / ENDSTOP_X_RETEST_REDUCTION_FACTOR,true,false);
         PrintLine::moveRelativeDistanceInSteps(0,axisStepsPerMM[Y_AXIS] * 2 * ENDSTOP_Y_BACK_MOVE * Y_HOME_DIR,0,0,homingFeedrate[Y_AXIS] / ENDSTOP_X_RETEST_REDUCTION_FACTOR,true,true);
         setHoming(false);
-        Serial.println("Alive?");
 #if defined(ENDSTOP_Y_BACK_ON_HOME)
         if(ENDSTOP_Y_BACK_ON_HOME > 0)
             PrintLine::moveRelativeDistanceInSteps(0,axisStepsPerMM[Y_AXIS] * -ENDSTOP_Y_BACK_ON_HOME * Y_HOME_DIR,0,0,homingFeedrate[Y_AXIS],true,false);
@@ -1231,12 +1238,9 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis)
     if(zaxis) homeZAxis();
     if(yaxis) homeYAxis();
 #elif HOMING_ORDER == HOME_ORDER_YXZ
-    Serial.println("Alive.");
     if(yaxis) homeYAxis();
-    Serial.println("Alive.");
     if(xaxis) homeXAxis();
     if(zaxis) homeZAxis();
-    Serial.println("Alive.");
 #elif HOMING_ORDER == HOME_ORDER_YZX
     if(yaxis) homeYAxis();
     if(zaxis) homeZAxis();
@@ -1344,19 +1348,10 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis)
     if(zaxis)
         startZ = Z_UP_AFTER_HOME;
 #endif
-    moveToReal(startX, startY, startZ, IGNORE_COORDINATE, homingFeedrate[X_AXIS]);
+    moveToReal(startX, startY, startZ, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
     updateCurrentPosition(true);
     UI_CLEAR_STATUS
     Commands::printCurrentPosition(PSTR("homeAxis"));
-    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] + 2.0, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
-    if(Extruder::current->id == 1)
-    {
-      Printer::setNoDestinationCheck(true);
-      Printer::moveTo(-EXT1_X_OFFSET, 506.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
-      Printer::moveTo(-EXT1_X_OFFSET + 46.0, IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
-      Printer::moveTo(IGNORE_COORDINATE, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
-      Printer::setNoDestinationCheck(false);
-    }
 }
 
 void Printer::zBabystep()

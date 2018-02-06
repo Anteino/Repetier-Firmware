@@ -131,6 +131,10 @@ void SDCard::startPrint()
     sdmode = 1;
     Printer::setMenuMode(MENU_MODE_SD_PRINTING, true);
     Printer::setMenuMode(MENU_MODE_SD_PAUSED, false);
+    Printer::lastActiveTemp[0] = 0.0;
+    Printer::lastActiveTemp[1] = 0.0;
+    Printer::lastActiveTemp[2] = 0.0;
+    Printer::errorDetected = false;
 }
 void SDCard::pausePrint(bool intern)
 {
@@ -216,11 +220,9 @@ void SDCard::stopPrint(bool keepHeat)
     Printer::setMenuMode(MENU_MODE_SD_PRINTING,false);
     Printer::setMenuMode(MENU_MODE_SD_PAUSED,false);
     GCode::executeFString(PSTR(SD_RUN_ON_STOP));
-    Serial.println("Not dead yet.");
     Printer::updateCurrentPosition(true);
     Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[X_AXIS]);
     Printer::homeAxis(true, true, false);
-    Serial.println("Still not dead yet.");
 //    Commands::waitUntilEndOfAllMoves();
     if(!keepHeat)
     {
@@ -228,7 +230,7 @@ void SDCard::stopPrint(bool keepHeat)
         Extruder::setTemperatureForExtruder(0, 1);
         Extruder::setHeatedBedTemperature(0);
     }
-    Serial.println("this can't be happening");
+    Printer::babysteps = 0;
 }
 
 //  This function stops the current print and creates a resume.g. Function was first created
@@ -262,27 +264,39 @@ void SDCard::saveStopPrint(bool keepHeat)
   strcat(bufCoord,bufX);
   strcat(bufCoord," Y");
   strcat(bufCoord,bufY);
-  strcat(bufCoord," F4000\nG92 Z");
-  strcat(bufCoord,bufZ);
-  strcat(bufCoord,"\n");
+  strcat(bufCoord," F4000\n");
 
   int actualCurrentExtruder = Extruder::current->id;
   float T_temp[2],  //  index 0 for extruder0 and 1 for extruder1
         B_temp;
-  
-  Extruder::current = &extruder[0];
-  T_temp[0] = Extruder::current->tempControl.targetTemperatureC;
-  Extruder::current = &extruder[1];
-  T_temp[1] = Extruder::current->tempControl.targetTemperatureC;
-  Extruder::current = &extruder[actualCurrentExtruder];
-  B_temp = heatedBedController.targetTemperatureC;
+
+  if(Printer::errorDetected)
+  {
+    T_temp[0] = Printer::lastActiveTemp[0];
+    T_temp[1] = Printer::lastActiveTemp[1];
+    B_temp = Printer::lastActiveTemp[2];
+  }
+  else
+  {
+    Extruder::current = &extruder[0];
+    T_temp[0] = Extruder::current->tempControl.targetTemperatureC;
+    Extruder::current = &extruder[1];
+    T_temp[1] = Extruder::current->tempControl.targetTemperatureC;
+    Extruder::current = &extruder[actualCurrentExtruder];
+    B_temp = heatedBedController.targetTemperatureC;
+  }
 
   for(int i = 0; i < 2; i++)
   {
     sprintf(msg, "M104 T%i S%s\n", i, floatToString(buff, T_temp[i], 2));
     file.write(msg);
   }
-  sprintf(msg, "M190 S%s\n", floatToString(buff, B_temp, 2));
+  sprintf(msg, "M140 S%s\n", floatToString(buff, B_temp, 2));
+  file.write(msg);
+  file.write("G28 XYZ\nG1 Z490 F600\n");
+  sprintf(msg, "M290 Z%s\n", floatToString(buff, (float)Printer::babysteps * Printer::invAxisStepsPerMM[Z_AXIS], 4));
+  file.write(msg);
+  sprintf(msg, "G1 Z498\nM190 S%s\n", floatToString(buff, B_temp, 2));
   file.write(msg);
   for(int i = 0; i < 2; i++)
   {
@@ -292,19 +306,26 @@ void SDCard::saveStopPrint(bool keepHeat)
       file.write(msg);
     }
   }
-  file.write("G28 XY\n");
   sprintf(msg, "T%d\n", Extruder::current->id);
   file.write(msg);
   sprintf(msg, "M106 S%d\n", Printer::getFanSpeed());
   file.write(msg);
-  sprintf(msg, "G92 E0\nG1 E13.5 F F150\nG92 E%s\n", floatToString(buff, Printer::currentPositionSteps[E_AXIS]/Printer::axisStepsPerMM[E_AXIS], 2));
+  sprintf(msg, "G92 E0\nG1 E13.5 F150\nG92 E%s\n", floatToString(buff, (float)Printer::currentPositionSteps[E_AXIS] / (float)Printer::axisStepsPerMM[E_AXIS], 2));
   file.write(msg);
   file.write(bufCoord);
+  sprintf(msg, "G1 Z%s F600\n", bufZ);
+  file.write(msg);
   sprintf(msg, "M23 %s\n", Printer::current_filename);
   file.write(msg);
   sprintf(msg, "M26 S%lu\n", (unsigned long)sdpos);
   file.write(msg);
-//  file.write("M24\n");
+  for(int i = 0; i < 2; i++)
+  {
+    sprintf(msg, "M104 T%i S%s\n", i, floatToString(buff, T_temp[i], 2));
+    file.write(msg);
+  }
+  sprintf(msg, "M140 S%s\n", floatToString(buff, B_temp, 2));
+  file.write(msg);
 
   file.sync();
   file.close();
@@ -312,13 +333,7 @@ void SDCard::saveStopPrint(bool keepHeat)
   Printer::updateCurrentPosition(true);
   Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[E_AXIS] / Printer::axisStepsPerMM[E_AXIS] - 10.0, Printer::maxFeedrate[E_AXIS]);
 
-  Serial.println("Stopping print");
   this->stopPrint(keepHeat);
-  Serial.println("Print actually stopped");
-//  if(keepHeat == false)
-//  {
-//    Printer::kill(false);
-//  }
 }
 
 //  Creates the resume.g file needed for saving before stopping a print. Function name
@@ -354,13 +369,13 @@ void SDCard::createResumeGemma()
  */
 void SDCard::resumeG_resume()
 {
+  Commands::waitUntilEndOfAllMoves();
 	SdBaseFile parent;
 	parent = *fat.vwd();
   file.close();
 	float file_open = file.open(&parent, "resume.g", O_READ);
   Com::printFLN(PSTR("file_open_success: "), file_open);
   file.truncate(0);
-	Serial.println("Resuming print.");
 	if(file.isOpen())
 	{
     char buffer_[1024];
@@ -371,10 +386,6 @@ void SDCard::resumeG_resume()
     file.close();
     Serial.write(buffer_);
     GCode::executeFString(PSTR(buffer_));
-	}
-	else
-	{
-	  Serial.println("Opening resume.g failed");
 	}
 }
 
@@ -580,7 +591,6 @@ void SDCard::writeCommand(GCode *code)
 void SDCard::saveCurrentPosition()
 {
   sdpos_saved = sdpos;
-  Serial.println("Saving current position: " + String(sdpos) + ".");
 }
 
 char *SDCard::createFilename(char *buffer,const dir_t &p)
@@ -739,6 +749,8 @@ bool compareCharString(const char *charArray, String string_)
 
 bool SDCard::selectFile(const char *filename, bool silent)
 {
+    if(!sdactive) return false;
+	
     for(int i=0;i<(LONG_FILENAME_LENGTH+1);i++)
     {
       Printer::current_filename[i] = filename[i];
@@ -754,8 +766,7 @@ bool SDCard::selectFile(const char *filename, bool silent)
       filesize = file.fileSize();
       return true;
     }
-
-    if(!sdactive) return false;
+	
     sdmode = 0;
 
     file.close();

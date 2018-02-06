@@ -101,7 +101,6 @@ void Extruder::manageTemperatures()
             differential = (differential + error) / (float)interval;
 
             output = FAN_THERMO_P * error + FAN_THERMO_I * integral + FAN_THERMO_D * differential;
-//            Serial.println("Wanted temperature: " + String(Printer::thermoMinTemp) + ", actual temperature: " + String(act->currentTemperatureC) + ", error: " + String(error) + ", integral: " + String(integral) + ", differential: " + String(differential) + ", output: " + String(output) + ".");
             
             Printer::caseTempIndex++;
             if(Printer::caseTempIndex >= FAN_THERMO_PID_HISTORY)
@@ -178,6 +177,7 @@ void Extruder::manageTemperatures()
                     reportTempsensorError();
                 }
                 EVENT_HEATER_DEFECT(controller);
+        				if(!Printer::errorDetected){Printer::errorDetected = true; sd.saveStopPrint(false);}
             }			
         }
 #ifdef RED_BLUE_STATUS_LEDS
@@ -579,127 +579,101 @@ This function changes and initializes a new extruder. This is also called, after
 */
 void Extruder::selectExtruderById(uint8_t extruderId)
 {
-	if(extruderId == Extruder::current->id)
-	{
-		return;
-	}
-#if NUM_EXTRUDER > 0
-    if(extruderId >= NUM_EXTRUDER)
-        extruderId = 0;
-    Com::printFLN(PSTR("SelectExtruder:"), static_cast<int>(extruderId));
-//    if(Printer::isHomed() && extruder[extruderId].zOffset < Extruder::current->zOffset) { // prevent extruder from hitting bed
-//        Printer::offsetZ = -extruder[extruderId].zOffset * Printer::invAxisStepsPerMM[Z_AXIS];
-//        Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-//        Commands::waitUntilEndOfAllMoves();
-//    }
-    Printer::updateCurrentPosition(true);
-#if NUM_EXTRUDER > 1
-    bool executeSelect = false;
-    if(extruderId != Extruder::current->id)
-    {
-        GCode::executeFString(Extruder::current->deselectCommands);
-        executeSelect = true;
-    }
-    Commands::waitUntilEndOfAllMoves();
-#endif
-    float cx, cy, cz;
-    Printer::realPosition(cx, cy, cz);
-    float oldfeedrate = Printer::feedrate;
-    Extruder::current->extrudePosition = Printer::currentPositionSteps[E_AXIS];
-    Extruder::current = &extruder[extruderId];
-    Printer::updateCurrentPosition(true);
-#ifdef SEPERATE_EXTRUDER_POSITIONS
-    // Use separate extruder positions only if being told. Slic3r e.g. creates a continuous extruder position increment
+  bool executeSelect = false;
+  float cx, cy, cz, oldfeedrate, maxdist, fmax;
+  if(extruderId == Extruder::current->id || extruderId < 0 || extruderId > 1)
+  {
+    return;
+  }
+  Com::printFLN(PSTR("SelectExtruder:"), static_cast<int>(extruderId));
+  Printer::updateCurrentPosition(true);
+  if(extruderId != Extruder::current->id)
+  {
+    GCode::executeFString(Extruder::current->deselectCommands);
+    executeSelect = true;
+  }
+  Commands::waitUntilEndOfAllMoves();
+  Printer::realPosition(cx, cy, cz);
+  oldfeedrate = Printer::feedrate;
+  Extruder::current->extrudePosition = Printer::currentPositionSteps[E_AXIS];
+  Extruder::current = &extruder[extruderId];
+  Printer::updateCurrentPosition(true);
+  #ifdef SEPERATE_EXTUDER_POSITIONS // Use separate extruder positions only if being told. Slic3r e.g. creates a continuous extruder position increment
     Printer::currentPositionSteps[E_AXIS] = Extruder::current->extrudePosition;
-#endif
-    Printer::destinationSteps[E_AXIS] = Printer::currentPositionSteps[E_AXIS];
-    Printer::axisStepsPerMM[E_AXIS] = Extruder::current->stepsPerMM;
-    Printer::invAxisStepsPerMM[E_AXIS] = 1.0f / Printer::axisStepsPerMM[E_AXIS];
-    Printer::maxFeedrate[E_AXIS] = Extruder::current->maxFeedrate;
-//   max_start_speed_units_per_second[E_AXIS] = Extruder::current->maxStartFeedrate;
-    Printer::maxAccelerationMMPerSquareSecond[E_AXIS] = Printer::maxTravelAccelerationMMPerSquareSecond[E_AXIS] = Extruder::current->maxAcceleration;
-    Printer::maxTravelAccelerationStepsPerSquareSecond[E_AXIS] =
-        Printer::maxPrintAccelerationStepsPerSquareSecond[E_AXIS] = Printer::maxAccelerationMMPerSquareSecond[E_AXIS] * Printer::axisStepsPerMM[E_AXIS];
-#if USE_ADVANCE
-    Printer::maxExtruderSpeed = (ufast8_t)floor(HAL::maxExtruderTimerFrequency() / (Extruder::current->maxFeedrate * Extruder::current->stepsPerMM));
-#if CPU_ARCH == ARCH_ARM
-    if(Printer::maxExtruderSpeed > 40) Printer::maxExtruderSpeed = 40;
-#else
-    if(Printer::maxExtruderSpeed > 15) Printer::maxExtruderSpeed = 15;
-#endif
-    float maxdist = Extruder::current->maxFeedrate * Extruder::current->maxFeedrate * 0.00013888 / Extruder::current->maxAcceleration;
+  #endif
+  Printer::destinationSteps[E_AXIS] = Printer::currentPositionSteps[E_AXIS];
+  Printer::axisStepsPerMM[E_AXIS] = Extruder::current->stepsPerMM;
+  Printer::invAxisStepsPerMM[E_AXIS] = 1.0f / Printer::axisStepsPerMM[E_AXIS];
+  Printer::maxFeedrate[E_AXIS] = Extruder::current->maxFeedrate;
+  Printer::maxAccelerationMMPerSquareSecond[E_AXIS] = Printer::maxTravelAccelerationMMPerSquareSecond[E_AXIS] = Extruder::current->maxAcceleration;
+  Printer::maxTravelAccelerationStepsPerSquareSecond[E_AXIS] =
+  Printer::maxPrintAccelerationStepsPerSquareSecond[E_AXIS] = Printer::maxAccelerationMMPerSquareSecond[E_AXIS] * Printer::axisStepsPerMM[E_AXIS];
+  #if USE_ADVANCE
+    Printer::maxExtruderSpeed = 15;
+    maxdist = Extruder::current->maxFeedrate * Extruder::current->maxFeedrate * 0.00013888 / Extruder::current->maxAcceleration;
     maxdist -= Extruder::current->maxStartFeedrate * Extruder::current->maxStartFeedrate * 0.5 / Extruder::current->maxAcceleration;
-    float fmax = ((float)HAL::maxExtruderTimerFrequency() / ((float)Printer::maxExtruderSpeed * Printer::axisStepsPerMM[E_AXIS])); // Limit feedrate to interrupt speed
-    if(fmax < Printer::maxFeedrate[E_AXIS]) Printer::maxFeedrate[E_AXIS] = fmax;
-#endif
-    Extruder::current->tempControl.updateTempControlVars();
-    //  <---->
-  	if(Extruder::current->id == 1)
-  	{
-  		Printer::offsetX = Extruder::current->xOffset * Printer::invAxisStepsPerMM[X_AXIS] + EXT1_X_OFFSET;
-  	}
-  	else
-  	{
-  		Printer::offsetX = Extruder::current->xOffset * Printer::invAxisStepsPerMM[X_AXIS];
-  	}
-    Printer::offsetY = Extruder::current->yOffset * Printer::invAxisStepsPerMM[Y_AXIS];
-    Printer::offsetZ = Extruder::current->zOffset * Printer::invAxisStepsPerMM[Z_AXIS];
-    Serial.println("Z-Offset: " + String(Extruder::current->zOffset));
-    //  <---->
-    Printer::updateCurrentPosition(true);
-    Commands::changeFlowrateMultiply(Printer::extrudeMultiply); // needed to adjust extrusionFactor to possibly different diameter
-    if(Printer::isHomed())
+    fmax = ((float)HAL::maxExtruderTimerFrequency() / ((float)Printer::maxExtruderSpeed * Printer::axisStepsPerMM[E_AXIS])); // Limit feedrate to interrupt speed
+    if(fmax < Printer::maxFeedrate[E_AXIS])
     {
-        Printer::moveToReal(cx, cy, cz, IGNORE_COORDINATE, EXTRUDER_SWITCH_XY_SPEED);
+      Printer::maxFeedrate[E_AXIS] = fmax;
     }
-    
-    Printer::feedrate = oldfeedrate;
-    Printer::updateCurrentPosition();
-#if USE_ADVANCE
+  #endif
+  Extruder::current->tempControl.updateTempControlVars();
+  
+  Printer::offsetX = Extruder::current->xOffset * Printer::invAxisStepsPerMM[X_AXIS] + Extruder::current->id * EXT1_X_OFFSET;
+  Printer::offsetY = Extruder::current->yOffset * Printer::invAxisStepsPerMM[Y_AXIS];
+  Printer::offsetZ = Extruder::current->zCalib * Printer::invAxisStepsPerMM[Z_AXIS];
+  
+  Printer::updateCurrentPosition(true);
+  Commands::changeFlowrateMultiply(Printer::extrudeMultiply); // needed to adjust extrusionFactor to possibly different diameter
+  if(Printer::isHomed())    //  Anteino 12-1-2018: Might need to rethink if this move is really necessary
+  {
+      Printer::moveToReal(cx, cy, cz, IGNORE_COORDINATE, EXTRUDER_SWITCH_XY_SPEED);
+  }
+  Printer::feedrate = oldfeedrate;
+  Printer::updateCurrentPosition();
+  #if USE_ADVANCE
     HAL::resetExtruderDirection();
-#endif
-
-#if NUM_EXTRUDER > 1
-    if(executeSelect) {// Run only when changing
-        Commands::waitUntilEndOfAllMoves();
-        GCode::executeFString(Extruder::current->selectCommands);
-    }
-#endif
-#endif
+  #endif
+  if(executeSelect)
+  { //  Run only when changing
+    Commands::waitUntilEndOfAllMoves();
+    GCode::executeFString(Extruder::current->selectCommands);
+  }
   if(!Printer::isHomed())
   {
-    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, 2, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-    Commands::waitUntilEndOfAllMoves();
-    Printer::homeAxis(true, true, false);
+    Printer::homeAxis(true, true, true);
   }
   if(extruderId == 0)
   {
     Printer::updateCurrentPosition(true);
     Commands::setFanSpeed(Printer::fanSpeed, 0, false);
-    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] + 2.0, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
+    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] + 0.5, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
     Printer::moveTo(574.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::setNoDestinationCheck(true);
     Printer::moveTo(574.0, 506.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::moveTo(564.0, 506.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::setNoDestinationCheck(false);
     Printer::moveTo(564.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
-    Printer::moveTo(0.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
-    Printer::moveTo(0.0, 496.0, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] - 2.0, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+    Printer::moveTo(0.5, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+    Printer::moveTo(0.5, 496.0, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] - 2.0, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+    Commands::waitUntilEndOfAllMoves();
     Printer::updateCurrentPosition(true);
   }
-  else if(extruderId = 1)
+  else if(extruderId == 1)
   {
     Printer::updateCurrentPosition(true);
     Commands::setFanSpeed(Printer::fanSpeed, 1, false);
-    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] + 2.0, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
+    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] + 0.5, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
     Printer::moveTo(-EXT1_X_OFFSET, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::setNoDestinationCheck(true);
     Printer::moveTo(-EXT1_X_OFFSET, 506.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::moveTo(-EXT1_X_OFFSET + 10.0, 506.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::moveTo(IGNORE_COORDINATE, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
-    Printer::moveTo(-EXT1_X_OFFSET + 575.5, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+    Printer::moveTo(-EXT1_X_OFFSET + 574.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::setNoDestinationCheck(false);
     Printer::moveTo(-EXT1_X_OFFSET + 574.0, 496.0, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] - 2.0, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+    Commands::waitUntilEndOfAllMoves();
     Printer::updateCurrentPosition(true);
   }
 }
@@ -824,6 +798,10 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
         Printer::flag2 &= ~PRINTER_FLAG2_RESET_FILAMENT_USAGE;
     }
 #endif
+    if(tempController[extr]->targetTemperatureC > 0)
+    {
+      Printer::lastActiveTemp[extr] = tempController[extr]->targetTemperatureC;
+    }
 }
 
 void Extruder::setHeatedBedTemperature(float temperatureInCelsius,bool beep)
@@ -839,6 +817,11 @@ void Extruder::setHeatedBedTemperature(float temperatureInCelsius,bool beep)
     else if(Printer::areAllSteppersDisabled())
         pwm_pos[PWM_BOARD_FAN] = 0;      // turn off the mainboard cooling fan only if steppers disabled
     EVENT_SET_BED_TEMP(temperatureInCelsius,beep);
+
+    if(heatedBedController.targetTemperatureC > 0)
+    {
+      Printer::lastActiveTemp[2] = heatedBedController.targetTemperatureC;
+    }
 }
 
 float Extruder::getHeatedBedTemperature()
@@ -1463,7 +1446,7 @@ int16_t read_max6675(uint8_t ss_pin)
     static int16_t max6675_temp = 0;
     if (HAL::timeInMilliseconds() - last_max6675_read > 230)
     {
-        HAL::spiInit(2);
+        HAL::spiInit(4);
         HAL::digitalWrite(ss_pin, 0);  // enable TT_MAX6675
         HAL::delayMicroseconds(1);    // ensure 100ns delay - a bit extra is fine
         max6675_temp = HAL::spiReceive(0);
@@ -1480,7 +1463,7 @@ int16_t read_max31855(uint8_t ss_pin)
 {
     uint32_t data = 0;
     int16_t temperature;
-    HAL::spiInit(2);
+    HAL::spiInit(4);
     HAL::digitalWrite(ss_pin, 0);  // enable TT_MAX31855
     HAL::delayMicroseconds(1);    // ensure 100ns delay - a bit extra is fine
 
@@ -1585,7 +1568,7 @@ Extruder extruder[NUM_EXTRUDER] =
 {
 #if NUM_EXTRUDER > 0
     {
-        0,EXT0_X_OFFSET,EXT0_Y_OFFSET,EXT0_Z_OFFSET,EXT0_STEPS_PER_MM,EXT0_ENABLE_PIN,EXT0_ENABLE_ON,
+        0,EXT0_X_OFFSET,EXT0_Y_OFFSET,EXT0_Z_OFFSET,0,EXT0_STEPS_PER_MM,EXT0_ENABLE_PIN,EXT0_ENABLE_ON,
         EXT0_MAX_FEEDRATE,EXT0_MAX_ACCELERATION,EXT0_MAX_START_FEEDRATE,0,EXT0_WATCHPERIOD
         ,EXT0_WAIT_RETRACT_TEMP,EXT0_WAIT_RETRACT_UNITS
 #if USE_ADVANCE
@@ -1609,7 +1592,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
 #if NUM_EXTRUDER > 1
     ,{
-        1,EXT1_X_OFFSET,EXT1_Y_OFFSET,EXT1_Z_OFFSET,EXT1_STEPS_PER_MM,EXT1_ENABLE_PIN,EXT1_ENABLE_ON,
+        1,EXT1_X_OFFSET,EXT1_Y_OFFSET,EXT1_Z_OFFSET,0,EXT1_STEPS_PER_MM,EXT1_ENABLE_PIN,EXT1_ENABLE_ON,
         EXT1_MAX_FEEDRATE,EXT1_MAX_ACCELERATION,EXT1_MAX_START_FEEDRATE,0,EXT1_WATCHPERIOD
         ,EXT1_WAIT_RETRACT_TEMP,EXT1_WAIT_RETRACT_UNITS
 #if USE_ADVANCE

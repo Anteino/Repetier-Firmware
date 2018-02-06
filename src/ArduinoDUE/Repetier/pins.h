@@ -147,7 +147,8 @@ CPU_ARCH
 #define E3_PINS ORIG_E3_STEP_PIN,ORIG_E3_DIR_PIN,ORIG_E3_ENABLE_PIN,
 #define E4_PINS ORIG_E4_STEP_PIN,ORIG_E4_DIR_PIN,ORIG_E4_ENABLE_PIN,
 
-#define TWI_CLOCK_FREQ          400000
+//#define TWI_CLOCK_FREQ          400000
+#define TWI_CLOCK_FREQ          10000
 // see eeprom device data sheet for the following values these are for 24xx256
 #define EEPROM_SERIAL_ADDR      0x50   // 7 bit i2c address (without R/W bit)
 #define EEPROM_PAGE_SIZE        64     // page write buffer size
