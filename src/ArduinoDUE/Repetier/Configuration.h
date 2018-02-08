@@ -1260,14 +1260,13 @@ or z min endstops the coating has no effect on the result, so you should use mod
 #define Z_PROBE_Z_OFFSET_MODE       0
 
 #define FEATURE_Z_PROBE             false
-#define Z_PROBE_PIN                 -1  // 63
+#define Z_PROBE_PIN                 ORIG_Z_MIN_PIN
 #define Z_PROBE_PULLUP              1
 #define Z_PROBE_ON_HIGH             1
-//#define Z_PROBE_X_OFFSET            -21.75
-#define Z_PROBE_X_OFFSET            0
+#define Z_PROBE_X_OFFSET            -21.75
 #define Z_PROBE_Y_OFFSET            0
 #define Z_PROBE_BED_DISTANCE        3.0 // Higher than max bed level distance error in mm
-#define PROBE_FIRST_TRY_DISTANCE    16.0 + 12.64
+#define PROBE_FIRST_TRY_DISTANCE    20.0
 
 // Waits for a signal to start. Valid signals are probe hit and ok button.
 // This is needful if you have the probe trigger by hand.
@@ -1283,7 +1282,7 @@ or z min endstops the coating has no effect on the result, so you should use mod
 #define Z_PROBE_HEIGHT 5.0
 
 /* These scripts are run before resp. after the z-probe is done. Add here code to activate/deactivate probe if needed. */
-#define Z_PROBE_START_SCRIPT "T0\n"
+#define Z_PROBE_START_SCRIPT "T1\n"
 #define Z_PROBE_FINISHED_SCRIPT ""
 
 /* Set 1 if you need a hot extruder for good probe results. Normally only required if nozzle is probe. */
@@ -1314,7 +1313,7 @@ bending to both sides of the axis. So probe points 2 and 3 build the symmetric a
 point 1 is mirrored to 1m across the axis. Using the symmetry we then remove the bending
 from 1 and use that as plane.
 */
-#define BED_LEVELING_METHOD 0
+#define BED_LEVELING_METHOD 1
 
 #define LEFT                0 //  Needed to print to the display which knob we're currently using
 #define RIGHT               1 //  ditto ^

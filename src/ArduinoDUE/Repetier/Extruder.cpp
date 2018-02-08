@@ -644,11 +644,11 @@ void Extruder::selectExtruderById(uint8_t extruderId)
   {
     Printer::homeAxis(true, true, true);
   }
+  Printer::updateCurrentPosition(true);
+  Commands::setFanSpeed(Printer::fanSpeed, extruderId, false);
+  Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] + 0.5, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
   if(extruderId == 0)
   {
-    Printer::updateCurrentPosition(true);
-    Commands::setFanSpeed(Printer::fanSpeed, 0, false);
-    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] + 0.5, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
     Printer::moveTo(574.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::setNoDestinationCheck(true);
     Printer::moveTo(574.0, 506.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
@@ -657,14 +657,9 @@ void Extruder::selectExtruderById(uint8_t extruderId)
     Printer::moveTo(564.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::moveTo(0.5, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::moveTo(0.5, 496.0, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] - 2.0, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
-    Commands::waitUntilEndOfAllMoves();
-    Printer::updateCurrentPosition(true);
   }
   else if(extruderId == 1)
   {
-    Printer::updateCurrentPosition(true);
-    Commands::setFanSpeed(Printer::fanSpeed, 1, false);
-    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] + 0.5, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
     Printer::moveTo(-EXT1_X_OFFSET, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::setNoDestinationCheck(true);
     Printer::moveTo(-EXT1_X_OFFSET, 506.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
@@ -673,9 +668,9 @@ void Extruder::selectExtruderById(uint8_t extruderId)
     Printer::moveTo(-EXT1_X_OFFSET + 574.0, 496.0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
     Printer::setNoDestinationCheck(false);
     Printer::moveTo(-EXT1_X_OFFSET + 574.0, 496.0, Printer::currentPositionSteps[Z_AXIS] * Printer::invAxisStepsPerMM[Z_AXIS] - 2.0, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
-    Commands::waitUntilEndOfAllMoves();
-    Printer::updateCurrentPosition(true);
   }
+  Commands::waitUntilEndOfAllMoves();
+  Printer::updateCurrentPosition(true);
 }
 
 void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t extr, bool beep, bool wait)

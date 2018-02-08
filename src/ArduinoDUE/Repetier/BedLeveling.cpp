@@ -121,9 +121,9 @@ requires the extruder to bend the coating thickness without harm!
 //#ifndef BED_LEVELING_REPETITIONS
 //#define BED_LEVELING_REPETITIONS 1
 //#endif
-
-#define BED_CORRECTION_METHOD 0
-#define BED_LEVELING_METHOD 0
+//
+//#define BED_CORRECTION_METHOD 0
+//#define BED_LEVELING_METHOD 0
 
 
 class PlaneBuilder {

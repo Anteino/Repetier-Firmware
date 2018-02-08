@@ -1192,13 +1192,88 @@
 #define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT3_DE "nozzle"
 #define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT4_DE "Weiter mit Klick"
 
-#define UI_TEXT_STOP_KEEP_HEAT_DE "Halt, halte Temp"
-#define UI_TEXT_SAVE_STOP_DE "Speicher und stop"
+#define UI_TEXT_STOP_KEEP_HEAT_DE "Stop, keep temp"
+#define UI_TEXT_SAVE_STOP_DE "Save and stop"
 
-#define UI_TEXT_PAGE_CHAMBER_DE " K:%ek/%Ek" cDEG "C" cARROW "%ok"
-#define UI_TEXT_CHAMBER_TEMP_DE " Kammer :%ek/%Ek" cDEG "C"
+#define UI_TEXT_PAGE_CHAMBER_DE       " C:%ek/%Ek" cDEG "C" cARROW "%ok"
+#define UI_TEXT_CHAMBER_TEMP_DE       "Chamber :%ek/%Ek" cDEG "C"
 
-#define UI_TEXT_RESUME_PRINT_DE "Weiter drucken"
+#define UI_TEXT_RESUME_PRINT_DE       "Resume print"
+
+#define UI_TEXT_LEVEL_OFFSET_DE                     "Level and calibrate"
+
+#define UI_TEXT_LEVEL_OFFSET_HEATUP_1_DE            "Heating, wait 15 min" 
+#define UI_TEXT_LEVEL_OFFSET_HEATUP_2_DE            "or click to skip."
+#define UI_TEXT_LEVEL_OFFSET_HEATUP_3_DE            "T:%e0, %e1 / %E0"
+#define UI_TEXT_LEVEL_OFFSET_HEATUP_4_DE            "B:%eb/%Eb Z:%x2"
+
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_1_DE      "Turn the %an knob"
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_2_DE      "%ad degrees"
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_3_DE      "%ac"
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_4_DE      "Click to continue"
+
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_1_DE      "Succes!"
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_2_DE      " "
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_3_DE      " "
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_4_DE      "Click to continue"
+
+#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_1_DE        "Before proceeding"
+#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_2_DE        "please tighten %an"
+#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_3_DE        "knob some more"
+#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_4_DE        "Click to continue"
+
+#define UI_TEXT_LEVEL_OFFSET_NOZZLE_1_DE            "Turn display knob"
+#define UI_TEXT_LEVEL_OFFSET_NOZZLE_2_DE            "until strip touches"
+#define UI_TEXT_LEVEL_OFFSET_NOZZLE_3_DE            "nozzle and click"
+#define UI_TEXT_LEVEL_OFFSET_NOZZLE_4_DE            "Z: %x2 mm"       
+
+#define UI_TEXT_LEVEL_OFFSET_RERUN_1_DE             "Wizard completed, it"
+#define UI_TEXT_LEVEL_OFFSET_RERUN_2_DE             "is wise to run"
+#define UI_TEXT_LEVEL_OFFSET_RERUN_3_DE             "this wizard twice"
+#define UI_TEXT_LEVEL_OFFSET_RERUN_4_DE             "Click to exit"
+
+#define UI_TEXT_LEFT_DE                             "left"
+#define UI_TEXT_RIGHT_DE                            "right"
+
+#define UI_TEXT_AWAIT_INSTRUCTIONS_1_DE             "Please await further"
+#define UI_TEXT_AWAIT_INSTRUCTIONS_2_DE             "instructions"
+#define UI_TEXT_AWAIT_INSTRUCTIONS_3_DE             " "
+#define UI_TEXT_AWAIT_INSTRUCTIONS_4_DE             " "
+
+#define UI_TEXT_CLOCKWISE_DE                        "clockwise"
+#define UI_TEXT_COUNTER_CLOCKWISE_DE                "counter-clockwise"
+
+#define UI_TEXT_BOTH_DE                             "both"
+
+#define UI_TEXT_FILACHANGE_CHOOSE_EXT_1_DE          "Rotate to make a"
+#define UI_TEXT_FILACHANGE_CHOOSE_EXT_2_DE          "selection of which"
+#define UI_TEXT_FILACHANGE_CHOOSE_EXT_3_DE          "extruder to change:"
+#define UI_TEXT_FILACHANGE_CHOOSE_EXT_4_DE          "%ca %ce"
+
+#define UI_TEXT_FILACHANGE_OLD_TEMP_1_DE            "Please rotate to"
+#define UI_TEXT_FILACHANGE_OLD_TEMP_2_DE            "temp. of the last"
+#define UI_TEXT_FILACHANGE_OLD_TEMP_3_DE            "printed material:"
+#define UI_TEXT_FILACHANGE_OLD_TEMP_4_DE            "%ct" cDEG "C"
+
+#define UI_TEXT_FILACHANGE_NEW_TEMP_1_DE            "Please rotate to"
+#define UI_TEXT_FILACHANGE_NEW_TEMP_2_DE            "temperature of the"
+#define UI_TEXT_FILACHANGE_NEW_TEMP_3_DE            "new material:"
+#define UI_TEXT_FILACHANGE_NEW_TEMP_4_DE            "%ct" cDEG "C"
+
+#define UI_TEXT_FILACHANGE_CHANGE_1_DE              "Rotate to extrude"
+#define UI_TEXT_FILACHANGE_CHANGE_2_DE              "or retract"
+#define UI_TEXT_FILACHANGE_CHANGE_3_DE              "T: %ec/%ct" cDEG "C"
+#define UI_TEXT_FILACHANGE_CHANGE_4_DE              "Click to confirm."
+
+#define UI_TEXT_FILACHANGE_FINISH_1_DE              "Filament change"
+#define UI_TEXT_FILACHANGE_FINISH_2_DE              "completed"
+#define UI_TEXT_FILACHANGE_FINISH_3_DE              " "
+#define UI_TEXT_FILACHANGE_FINISH_4_DE              "Click to complete."
+
+#define UI_TEXT_FILACHANGE_SINGLE_EXTRUDER_DE       "extruder"
+#define UI_TEXT_FILACHANGE_BOTH_EXTRUDERS_DE        "extruders"
+
+#define UI_TEXT_FILACHANGE_DE                       "Change filament"
 
 // Dutch translation
 
@@ -1511,13 +1586,88 @@
 #define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT3_NL "de nozzle raakt"
 #define UI_TEXT_WIZ_HARDWARE_KNOB_RIGHT4_NL "Ga verder met klik"
 
-#define UI_TEXT_STOP_KEEP_HEAT_NL "Stop, houdt temp"
-#define UI_TEXT_SAVE_STOP_NL "Opslaan en stoppen"
+#define UI_TEXT_STOP_KEEP_HEAT_NL "Stop, keep temp"
+#define UI_TEXT_SAVE_STOP_NL "Save and stop"
 
-#define UI_TEXT_PAGE_CHAMBER_NL " K:%ek/%Ek" cDEG "C" cARROW "%ok"
-#define UI_TEXT_CHAMBER_TEMP_NL "  Kamer :%ek/%Ek" cDEG "C"
+#define UI_TEXT_PAGE_CHAMBER_NL       " C:%ek/%Ek" cDEG "C" cARROW "%ok"
+#define UI_TEXT_CHAMBER_TEMP_NL       "Chamber :%ek/%Ek" cDEG "C"
 
-#define UI_TEXT_RESUME_PRINT_NL "Print voortzetten"
+#define UI_TEXT_RESUME_PRINT_NL       "Resume print"
+
+#define UI_TEXT_LEVEL_OFFSET_NL                     "Level and calibrate"
+
+#define UI_TEXT_LEVEL_OFFSET_HEATUP_1_NL            "Heating, wait 15 min" 
+#define UI_TEXT_LEVEL_OFFSET_HEATUP_2_NL            "or click to skip."
+#define UI_TEXT_LEVEL_OFFSET_HEATUP_3_NL            "T:%e0, %e1 / %E0"
+#define UI_TEXT_LEVEL_OFFSET_HEATUP_4_NL            "B:%eb/%Eb Z:%x2"
+
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_1_NL      "Turn the %an knob"
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_2_NL      "%ad degrees"
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_3_NL      "%ac"
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_4_NL      "Click to continue"
+
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_1_NL      "Succes!"
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_2_NL      " "
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_3_NL      " "
+#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_4_NL      "Click to continue"
+
+#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_1_NL        "Before proceeding"
+#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_2_NL        "please tighten %an"
+#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_3_NL        "knob some more"
+#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_4_NL        "Click to continue"
+
+#define UI_TEXT_LEVEL_OFFSET_NOZZLE_1_NL            "Turn display knob"
+#define UI_TEXT_LEVEL_OFFSET_NOZZLE_2_NL            "until strip touches"
+#define UI_TEXT_LEVEL_OFFSET_NOZZLE_3_NL            "nozzle and click"
+#define UI_TEXT_LEVEL_OFFSET_NOZZLE_4_NL            "Z: %x2 mm"       
+
+#define UI_TEXT_LEVEL_OFFSET_RERUN_1_NL             "Wizard completed, it"
+#define UI_TEXT_LEVEL_OFFSET_RERUN_2_NL             "is wise to run"
+#define UI_TEXT_LEVEL_OFFSET_RERUN_3_NL             "this wizard twice"
+#define UI_TEXT_LEVEL_OFFSET_RERUN_4_NL             "Click to exit"
+
+#define UI_TEXT_LEFT_NL                             "left"
+#define UI_TEXT_RIGHT_NL                            "right"
+
+#define UI_TEXT_AWAIT_INSTRUCTIONS_1_NL             "Please await further"
+#define UI_TEXT_AWAIT_INSTRUCTIONS_2_NL             "instructions"
+#define UI_TEXT_AWAIT_INSTRUCTIONS_3_NL             " "
+#define UI_TEXT_AWAIT_INSTRUCTIONS_4_NL             " "
+
+#define UI_TEXT_CLOCKWISE_NL                        "clockwise"
+#define UI_TEXT_COUNTER_CLOCKWISE_NL                "counter-clockwise"
+
+#define UI_TEXT_BOTH_NL                             "both"
+
+#define UI_TEXT_FILACHANGE_CHOOSE_EXT_1_NL          "Rotate to make a"
+#define UI_TEXT_FILACHANGE_CHOOSE_EXT_2_NL          "selection of which"
+#define UI_TEXT_FILACHANGE_CHOOSE_EXT_3_NL          "extruder to change:"
+#define UI_TEXT_FILACHANGE_CHOOSE_EXT_4_NL          "%ca %ce"
+
+#define UI_TEXT_FILACHANGE_OLD_TEMP_1_NL            "Please rotate to"
+#define UI_TEXT_FILACHANGE_OLD_TEMP_2_NL            "temp. of the last"
+#define UI_TEXT_FILACHANGE_OLD_TEMP_3_NL            "printed material:"
+#define UI_TEXT_FILACHANGE_OLD_TEMP_4_NL            "%ct" cDEG "C"
+
+#define UI_TEXT_FILACHANGE_NEW_TEMP_1_NL            "Please rotate to"
+#define UI_TEXT_FILACHANGE_NEW_TEMP_2_NL            "temperature of the"
+#define UI_TEXT_FILACHANGE_NEW_TEMP_3_NL            "new material:"
+#define UI_TEXT_FILACHANGE_NEW_TEMP_4_NL            "%ct" cDEG "C"
+
+#define UI_TEXT_FILACHANGE_CHANGE_1_NL              "Rotate to extrude"
+#define UI_TEXT_FILACHANGE_CHANGE_2_NL              "or retract"
+#define UI_TEXT_FILACHANGE_CHANGE_3_NL              "T: %ec/%ct" cDEG "C"
+#define UI_TEXT_FILACHANGE_CHANGE_4_NL              "Click to confirm."
+
+#define UI_TEXT_FILACHANGE_FINISH_1_NL              "Filament change"
+#define UI_TEXT_FILACHANGE_FINISH_2_NL              "completed"
+#define UI_TEXT_FILACHANGE_FINISH_3_NL              " "
+#define UI_TEXT_FILACHANGE_FINISH_4_NL              "Click to complete."
+
+#define UI_TEXT_FILACHANGE_SINGLE_EXTRUDER_NL       "extruder"
+#define UI_TEXT_FILACHANGE_BOTH_EXTRUDERS_NL        "extruders"
+
+#define UI_TEXT_FILACHANGE_NL                       "Change filament"
 
 // *************** Brazilian portuguese translation ****************
 

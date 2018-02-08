@@ -16,7 +16,7 @@
 
 */
 
-#define UI_MAIN 1
+#define UI_MAIN 1ge
 #include "Repetier.h"
 // The uimenu.h declares static variables of menus, which must be declared only once.
 // It does not define interfaces for other modules, so should never be included elsewhere
@@ -75,7 +75,6 @@ enum levelOffsetStates
 {
   stopped_ = 0,
   heatup,
-//  knobs_1,
   knobs_2_left,
   knobs_2_right,
   nozzle_right,
@@ -4330,26 +4329,27 @@ void UIDisplay::slowAction(bool allowMoves)
 
 float UIDisplay::getProbeActivatedDistance()
 {
-  int iterations = 10;
-  float movingSpeed = Printer::maxFeedrate[Z_AXIS];
   float value = 0.0;
-  for(int i = 0; i < iterations; i++)
+  float tryDistance = PROBE_FIRST_TRY_DISTANCE;
+  for(int i = 0; i < Z_PROBE_REPETITIONS; i++)
   {
     Printer::updateCurrentPosition(true);
-    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, PROBE_FIRST_TRY_DISTANCE, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
+    Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, tryDistance, IGNORE_COORDINATE, Printer::maxFeedrate[Z_AXIS]);
     Commands::waitUntilEndOfAllMoves();
     Printer::updateCurrentPosition(true);
     Printer::realPosition(cx, cy, cz);
     int steps_ = (int)(-cz * Printer::axisStepsPerMM[Z_AXIS]);
     int oldSteps = Printer::currentPositionSteps[Z_AXIS];
     char msg[128];
-    PrintLine::moveRelativeDistanceInSteps(0, 0, steps_, 0, movingSpeed, true, true, true);
+    PrintLine::moveRelativeDistanceInSteps(0, 0, steps_, 0, Z_PROBE_SPEED, true, true, true);
     Printer::currentPositionSteps[Z_AXIS] = oldSteps + steps_ + Printer::stepsRemainingAtZHit;
     Printer::updateCurrentPosition(true);
     Printer::realPosition(cx, cy, cz);
+    tryDistance = cz + Z_PROBE_SWITCHING_DISTANCE;
     value += cz;
   }
-  return value / (float)iterations;
+  Serial.println(value / (float)Z_PROBE_REPETITIONS);
+  return value / (float)Z_PROBE_REPETITIONS;
 }
 
 

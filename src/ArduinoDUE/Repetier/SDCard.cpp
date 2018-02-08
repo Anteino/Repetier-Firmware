@@ -369,7 +369,7 @@ void SDCard::createResumeGemma()
  */
 void SDCard::resumeG_resume()
 {
-  Commands::waitUntilEndOfAllMoves();
+//  Commands::waitUntilEndOfAllMoves();
 	SdBaseFile parent;
 	parent = *fat.vwd();
   file.close();
@@ -384,7 +384,6 @@ void SDCard::resumeG_resume()
       file.read(buffer_, 1024);
     }
     file.close();
-    Serial.write(buffer_);
     GCode::executeFString(PSTR(buffer_));
 	}
 }
