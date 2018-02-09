@@ -703,7 +703,7 @@
 #define UI_TEXT_CLICK_DONE_EN "Click when done"
 #define UI_TEXT_AUTOLEVEL_ONOFF_EN  "Autolevel: %ll"
 #define UI_TEXT_SERVOPOS_EN "Servo pos.: %oS"
-#define UI_TEXT_IGNORE_M106_EN      "Ignore M106 cmd %Fi"
+#define UI_TEXT_IGNORE_M106_EN      "Skip gcode fansp %Fi"
 #define UI_TEXT_WIZ_REHEAT1_EN "Click to reheat"
 #define UI_TEXT_WIZ_REHEAT2_EN "extruders."
 #define UI_TEXT_WIZ_WAITTEMP1_EN "Wait for target"
@@ -873,8 +873,8 @@
 
 #define UI_TEXT_FILACHANGE_FINISH_1_EN              "Filament change"
 #define UI_TEXT_FILACHANGE_FINISH_2_EN              "completed"
-#define UI_TEXT_FILACHANGE_FINISH_3_EN              " "
-#define UI_TEXT_FILACHANGE_FINISH_4_EN              "Click to complete."
+#define UI_TEXT_FILACHANGE_FINISH_3_EN              "Click to end"
+#define UI_TEXT_FILACHANGE_FINISH_4_EN              "procedure."
 
 #define UI_TEXT_FILACHANGE_SINGLE_EXTRUDER_EN       "extruder"
 #define UI_TEXT_FILACHANGE_BOTH_EXTRUDERS_EN        "extruders"

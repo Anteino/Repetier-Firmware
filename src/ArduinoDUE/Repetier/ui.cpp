@@ -2834,7 +2834,7 @@ void UIDisplay::filachange(int action_, int increment_)
     case filachange_change:
       if(action_ == ROTATE_ACTION)
       {
-        Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[E_AXIS] * Printer::invAxisStepsPerMM[E_AXIS] + (float)increment_ * 5.0, 5.0);
+        Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPositionSteps[E_AXIS] * Printer::invAxisStepsPerMM[E_AXIS] + (float)increment_ * 2.5, 2.5);
         Commands::waitUntilEndOfAllMoves();
       }
       else if(action_ == CLICK_ACTION)
