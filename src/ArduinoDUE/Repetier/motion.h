@@ -207,10 +207,6 @@ public:
                 if(isZNegativeMove() && Endstops::zMin())
                 {
                     setZMoveFinished();
-                    if(Printer::levelOffset)
-                    {
-                      Printer::stepsRemainingAtZHit = stepsRemaining;
-                    }
                 }
                 else if(isZPositiveMove() && Endstops::zMax())
                 {

@@ -248,18 +248,6 @@ public:
 #endif
 #endif
     static char current_filename[LONG_FILENAME_LENGTH + 1];
-    static int32_t activeKnob;                  //  Needed when leveling the bed
-    static bool levelOffset;                    //  A state the printer is in during the leveling and calibrating wizard.
-                                                //  This is needed to prevent the printer from setting Z to zero when the
-                                                //  probe is hit
-    static bool errorDetected;
-    static float lastActiveTemp[3];             //  To save the last set temperature that was higher than 0. This is to prevent
-                                                //  the printer from saving M104 T[id] S0 when the print was save-and-stopped
-                                                //  as a result of a temp sensor defect error, T0 = 0, T1 = 1, Bed = 2
-    static int babysteps;                       //  When the printer is babystepped during a print this needs to be saved for
-                                                //  when the print should be save-and-stopped
-    static float turnDegrees;                   //  Variable to instruct the user how much to turn the knobs
-    static float oldTempExt[2];
     
     static uint8_t menuMode;
     static float axisStepsPerMM[];

@@ -74,23 +74,6 @@ have problems with other modules using the eeprom */
 #define EPR_BACKLASH_Y            161
 #define EPR_BACKLASH_Z            165
 
-/*
- * So, in order to be able to calibrate the extruders we need to add an extra
- * entry to the EEPROM. The current situation is that you can offset all
- * extruders to extruder0. But what if extruder0 has an offset after homing
- * and there is no way to calibrate it physically. Since I was trying to abuse
- * the offsets for calibrating extruder0, weird shit started to occur. That's
- * why I'm introducing two new entries in the EEPROM here, to actually
- * calibrate the offset of each extruder independently and directly to the
- * home position.
- */
-//  Start of custom entries
-#define EPR_E0_Z_CALIB            169
-#define EPR_E1_Z_CALIB            173
-#define EPR_OLD_TEMP_E0           177
-#define EPR_OLD_TEMP_E1           181
-//  End of custom entries
-
 #define EPR_Z_PROBE_X_OFFSET      800
 #define EPR_Z_PROBE_Y_OFFSET      804
 #define EPR_Z_PROBE_HEIGHT        808

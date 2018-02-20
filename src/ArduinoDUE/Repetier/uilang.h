@@ -13,6 +13,7 @@
 
     You should have received a copy of the GNU General Public License
     along with Repetier-Firmware.  If not, see <http://www.gnu.org/licenses/>.
+
 */
 
 #if !defined(UI_DISPLAY_CHARSET) || UI_DISPLAY_CHARSET > 3
@@ -97,7 +98,7 @@
 #define LANGUAGE_FI_ID 11
 
 #define NUM_LANGUAGES_KNOWN 12
-#define NUM_TRANSLATED_WORDS 347
+#define NUM_TRANSLATED_WORDS 290
 
 // For selectable translations we refer to each text by a id which gets
 // defined here. The list starts at 0 and defines the position in the
@@ -105,7 +106,7 @@
 
 #define UI_TEXT_ON_ID 0 //               "On"
 #define UI_TEXT_OFF_ID 1 //              "Off"
-#define UI_TEXT_NA_ID 2 //               "N/A"
+#define UI_TEXT_NA_ID 2 //               "N/A" // Output for not available
 #define UI_TEXT_YES_ID 3 //              "Yes"
 #define UI_TEXT_NO_ID 4 //               "No"
 #define UI_TEXT_PRINT_POS_ID 5 //        "Printing..."
@@ -404,81 +405,6 @@
 
 #define UI_TEXT_RESUME_PRINT_ID 289
 
-#define UI_TEXT_LEVEL_OFFSET_ID                     290
-
-#define UI_TEXT_LEVEL_OFFSET_HEATUP_1_ID            291
-#define UI_TEXT_LEVEL_OFFSET_HEATUP_2_ID            292
-#define UI_TEXT_LEVEL_OFFSET_HEATUP_3_ID            293
-#define UI_TEXT_LEVEL_OFFSET_HEATUP_4_ID            294
-
-#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_1_ID      295
-#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_2_ID      296
-#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_3_ID      297
-#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_1_4_ID      298
-
-#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_1_ID      299
-#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_2_ID      300
-#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_3_ID      301
-#define UI_TEXT_LEVEL_OFFSET_TURN_KNOBS_2_4_ID      302
-
-#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_1_ID        303
-#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_2_ID        304
-#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_3_ID        305
-#define UI_TEXT_LEVEL_OFFSET_TURN_ERROR_4_ID        306
-
-#define UI_TEXT_LEVEL_OFFSET_NOZZLE_1_ID            307
-#define UI_TEXT_LEVEL_OFFSET_NOZZLE_2_ID            308
-#define UI_TEXT_LEVEL_OFFSET_NOZZLE_3_ID            309
-#define UI_TEXT_LEVEL_OFFSET_NOZZLE_4_ID            310
-
-#define UI_TEXT_LEVEL_OFFSET_RERUN_1_ID             311
-#define UI_TEXT_LEVEL_OFFSET_RERUN_2_ID             312
-#define UI_TEXT_LEVEL_OFFSET_RERUN_3_ID             313
-#define UI_TEXT_LEVEL_OFFSET_RERUN_4_ID             314
-
-#define UI_TEXT_LEFT_ID                             315
-#define UI_TEXT_RIGHT_ID                            316
-
-#define UI_TEXT_AWAIT_INSTRUCTIONS_1_ID             317
-#define UI_TEXT_AWAIT_INSTRUCTIONS_2_ID             318
-#define UI_TEXT_AWAIT_INSTRUCTIONS_3_ID             319
-#define UI_TEXT_AWAIT_INSTRUCTIONS_4_ID             320
-
-#define UI_TEXT_CLOCKWISE_ID                        321
-#define UI_TEXT_COUNTER_CLOCKWISE_ID                322
-
-#define UI_TEXT_BOTH_ID                             323
-
-#define UI_TEXT_FILACHANGE_CHOOSE_EXT_1_ID          324
-#define UI_TEXT_FILACHANGE_CHOOSE_EXT_2_ID          325
-#define UI_TEXT_FILACHANGE_CHOOSE_EXT_3_ID          326
-#define UI_TEXT_FILACHANGE_CHOOSE_EXT_4_ID          327
-
-#define UI_TEXT_FILACHANGE_OLD_TEMP_1_ID            328
-#define UI_TEXT_FILACHANGE_OLD_TEMP_2_ID            329
-#define UI_TEXT_FILACHANGE_OLD_TEMP_3_ID            330
-#define UI_TEXT_FILACHANGE_OLD_TEMP_4_ID            331
-
-#define UI_TEXT_FILACHANGE_NEW_TEMP_1_ID            332
-#define UI_TEXT_FILACHANGE_NEW_TEMP_2_ID            333
-#define UI_TEXT_FILACHANGE_NEW_TEMP_3_ID            334
-#define UI_TEXT_FILACHANGE_NEW_TEMP_4_ID            335
-
-#define UI_TEXT_FILACHANGE_CHANGE_1_ID              336
-#define UI_TEXT_FILACHANGE_CHANGE_2_ID              337
-#define UI_TEXT_FILACHANGE_CHANGE_3_ID              338
-#define UI_TEXT_FILACHANGE_CHANGE_4_ID              339
-
-#define UI_TEXT_FILACHANGE_FINISH_1_ID              340
-#define UI_TEXT_FILACHANGE_FINISH_2_ID              341
-#define UI_TEXT_FILACHANGE_FINISH_3_ID              342
-#define UI_TEXT_FILACHANGE_FINISH_4_ID              343
-
-#define UI_TEXT_FILACHANGE_SINGLE_EXTRUDER_ID       344
-#define UI_TEXT_FILACHANGE_BOTH_EXTRUDERS_ID        345
-
-#define UI_TEXT_FILACHANGE_ID                       346
-
 // Universal definitions
 
 #define UI_TEXT_SEL              cSEL
@@ -776,7 +702,7 @@
 #define UI_TEXT_Y_OFFSET_EN "Set Y offset:%T1mm"
 #define UI_TEXT_Z_OFFSET_EN "Set Z offset:%T2mm"
 //                            12345678901234567890
-#define UI_TEXT_BED_LEVEL_EN "Calibrate nozzles"
+#define UI_TEXT_BED_LEVEL_EN "Bed leveling wiz."
 //                                 12345678901234567890
 #define UI_TEXT_WIZ_BED_LEVEL1_EN "IMPORTANT: use 5mm"
 #define UI_TEXT_WIZ_BED_LEVEL2_EN "strip under nozzle"
@@ -806,6 +732,7 @@
 
 #define UI_TEXT_RESUME_PRINT_EN       "Resume print"
 
+<<<<<<< HEAD
 #define UI_TEXT_LEVEL_OFFSET_EN                     "Level and calibrate"
 
 #define UI_TEXT_LEVEL_OFFSET_HEATUP_1_EN            "Heating, wait 15 min" 
@@ -881,6 +808,8 @@
 
 #define UI_TEXT_FILACHANGE_EN                       "Change filament"
 
+=======
+>>>>>>> parent of 82e6b50... Minor fixes + new wizards
 // *************** German translation ****************
 
 #define UI_TEXT_ON_DE               "An"

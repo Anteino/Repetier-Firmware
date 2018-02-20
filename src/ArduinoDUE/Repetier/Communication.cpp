@@ -285,13 +285,6 @@ FSTRINGVALUE(Com::tEPRZBacklash,"Z backlash [mm]")
 FSTRINGVALUE(Com::tEPRMaxJerk,"Max. jerk [mm/s]")
 FSTRINGVALUE(Com::tEPRAccelerationFactorAtTop,"Acceleration factor at top [%,100=like bottom]")
 
-//  Start of custom EEPROM entries
-FSTRINGVALUE(Com::tEPRE0ZCalib,"E0 Z Calib [steps]")
-FSTRINGVALUE(Com::tEPRE1ZCalib,"E1 Z Calib [steps]")
-FSTRINGVALUE(Com::tEPROldTempE0,"E0 old temp [degrees celsius]")
-FSTRINGVALUE(Com::tEPROldTempE1,"E1 old temp [degrees celsius]")
-//  End of custom entries
-
 FSTRINGVALUE(Com::tEPRMaxZJerk,"Max. Z-jerk [mm/s]")
 FSTRINGVALUE(Com::tEPRXStepsPerMM,"X-axis steps per mm")
 FSTRINGVALUE(Com::tEPRYStepsPerMM,"Y-axis steps per mm")

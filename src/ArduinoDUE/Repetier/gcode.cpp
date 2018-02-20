@@ -163,7 +163,8 @@ void GCode::keepAlive(enum FirmwareState state) {
         } else if(state == WaitHeater) {
             Com::printFLN(PSTR("busy:heating"));
         } else { // processing and uncaught cases
-           Com::printFLN(PSTR("busy:processing"));
+//            Com::printFLN(PSTR("busy:processing"));
+            Serial.println("Busy:processing, state = " + String(state) + ".");
         }
     }
     lastBusySignal = now;

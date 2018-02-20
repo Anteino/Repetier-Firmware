@@ -61,12 +61,6 @@ void EEPROM::restoreEEPROMSettingsFromConfiguration()
 {
     // can only be done right if we also update permanent values not cached!
 #if EEPROM_MODE != 0
-
-    //  Start of custom entries
-    Extruder *e_[] = {&extruder[0], &extruder[1]};
-    e_[0]->zCalib = 0;
-    e_[1]->zCalib = 0;
-    //  End of custom entries
     EEPROM::initalizeUncached();
     uint8_t newcheck = computeChecksum();
     if(newcheck != HAL::eprGetByte(EPR_INTEGRITY_BYTE))
@@ -313,13 +307,6 @@ void EEPROM::restoreEEPROMSettingsFromConfiguration()
 void EEPROM::storeDataIntoEEPROM(uint8_t corrupted)
 {
 #if EEPROM_MODE != 0
-    //  Start of custom entries
-    Extruder *e_[] = {&extruder[0], &extruder[1]};
-    HAL::eprSetInt32(EPR_E0_Z_CALIB, e_[0]->zCalib);
-    HAL::eprSetInt32(EPR_E1_Z_CALIB, e_[1]->zCalib);
-    HAL::eprSetFloat(EPR_OLD_TEMP_E0, Printer::oldTempExt[0]);
-    HAL::eprSetFloat(EPR_OLD_TEMP_E1, Printer::oldTempExt[1]);
-    //  End of custom entries
     HAL::eprSetInt32(EPR_BAUDRATE,baudrate);
     HAL::eprSetInt32(EPR_MAX_INACTIVE_TIME,maxInactiveTime);
     HAL::eprSetInt32(EPR_STEPPER_INACTIVE_TIME,stepperInactiveTime);
@@ -442,12 +429,6 @@ void EEPROM::storeDataIntoEEPROM(uint8_t corrupted)
 }
 void EEPROM::initalizeUncached()
 {
-    //  Start of custom entries
-    HAL::eprSetInt32(EPR_E0_Z_CALIB, 0);
-    HAL::eprSetInt32(EPR_E1_Z_CALIB, 0);
-    HAL::eprSetFloat(EPR_OLD_TEMP_E0, 210.0);
-    HAL::eprSetFloat(EPR_OLD_TEMP_E0, 210.0);
-    //  End of custom entries
     HAL::eprSetFloat(EPR_Z_PROBE_HEIGHT,Z_PROBE_HEIGHT);
     HAL::eprSetFloat(EPR_Z_PROBE_SPEED,Z_PROBE_SPEED);
     HAL::eprSetFloat(EPR_Z_PROBE_XY_SPEED,Z_PROBE_XY_SPEED);
@@ -494,13 +475,6 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
     baudrate = HAL::eprGetInt32(EPR_BAUDRATE);
     maxInactiveTime = HAL::eprGetInt32(EPR_MAX_INACTIVE_TIME);
     stepperInactiveTime = HAL::eprGetInt32(EPR_STEPPER_INACTIVE_TIME);
-    //  Start of custom entries
-    Extruder *e_[] = {&extruder[0], &extruder[1]};
-    e_[0]->zCalib = HAL::eprGetInt32(EPR_E0_Z_CALIB);
-    e_[1]->zCalib = HAL::eprGetInt32(EPR_E1_Z_CALIB);
-    Printer::oldTempExt[0] = HAL::eprGetFloat(EPR_OLD_TEMP_E0);
-    Printer::oldTempExt[1] = HAL::eprGetFloat(EPR_OLD_TEMP_E1);
-    //  End of custom entries
 //#define EPR_ACCELERATION_TYPE 1
     Printer::axisStepsPerMM[X_AXIS] = HAL::eprGetFloat(EPR_XAXIS_STEPS_PER_MM);
     Printer::axisStepsPerMM[Y_AXIS] = HAL::eprGetFloat(EPR_YAXIS_STEPS_PER_MM);
@@ -763,12 +737,6 @@ void EEPROM::writeSettings()
     writeLong(EPR_MAX_INACTIVE_TIME, Com::tEPRMaxInactiveTime);
     writeLong(EPR_STEPPER_INACTIVE_TIME, Com::tEPRStopAfterInactivty);
 //#define EPR_ACCELERATION_TYPE 1
-    //  Start of custom entries
-    writeLong(EPR_E0_Z_CALIB, Com::tEPRE0ZCalib);
-    writeLong(EPR_E1_Z_CALIB, Com::tEPRE1ZCalib);
-    writeFloat(EPR_OLD_TEMP_E0, Com::tEPROldTempE0);
-    writeFloat(EPR_OLD_TEMP_E1, Com::tEPROldTempE1);
-    //  End of custom entries
     writeFloat(EPR_XAXIS_STEPS_PER_MM, Com::tEPRXStepsPerMM, 4);
     writeFloat(EPR_YAXIS_STEPS_PER_MM, Com::tEPRYStepsPerMM, 4);
     writeFloat(EPR_ZAXIS_STEPS_PER_MM, Com::tEPRZStepsPerMM, 4);
