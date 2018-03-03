@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Repetier-Firmware.  If not, see <http://www.gnu.org/licenses/>.
+along with Repetier-Firmware.  If not, see <http://www.gnu.org/licenses/>.s
 */
 
 #ifndef CONFIGURATION_H
@@ -88,7 +88,6 @@ pins. Separate multiple GCODEs with \n
 */
 
 #define STARTUP_GCODE ""
-//#define STARTUP_GCODE "G28 Z\n"
 
 // ##########################################################################################
 // ##                               Calibration                                            ##
@@ -166,8 +165,7 @@ controlled by settings in extruder 0 definition.
  * would mean that if you select the left extruder, extrude 20 mm and then select the right
  * extruder, the right extruder would think it has already extruded 20 mm. This is useful
  * if your slicer uses one absolute coordinate for both extruder positions. However, most
- * slicers just G92 E0 the extruder on a toolchange so you will probably never have to worry
- * about this.
+ * slicers just G92 E0 the extruder on a toolchange.
  */
 #define SEPERATE_EXTRUDER_POSITIONS
 
@@ -205,7 +203,7 @@ controlled by settings in extruder 0 definition.
 // 100 is AD595
 // 101 is MAX6675
 // 102 is MAX31855
-#define EXT0_TEMPSENSOR_TYPE 1
+#define EXT0_TEMPSENSOR_TYPE 8
 
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
 #define EXT0_TEMPSENSOR_PIN TEMP_0_PIN
@@ -330,7 +328,6 @@ The codes are only executed for multiple extruder when changing the extruder.
 
 /* Pullup resistor for jam pin? */
 #define EXT0_JAM_PULLUP false
-
 
 // =========================== Configuration for second extruder ========================
 #define EXT1_X_OFFSET -44.5 // 
@@ -798,7 +795,7 @@ on this endstop.
 #define MIN_HARDWARE_ENDSTOP_Z true
 #define MAX_HARDWARE_ENDSTOP_X false
 #define MAX_HARDWARE_ENDSTOP_Y true
-#define MAX_HARDWARE_ENDSTOP_Z false
+#define MAX_HARDWARE_ENDSTOP_Z true
 
 //If your axes are only moving in one direction, make sure the endstops are connected properly.
 //If your axes move in one direction ONLY when the endstops are triggered, set ENDSTOPS_INVERTING to true here
@@ -830,7 +827,7 @@ turn z off when heaters get also disabled.
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
 #define X_HOME_DIR -1
 #define Y_HOME_DIR 1
-#define Z_HOME_DIR -1
+#define Z_HOME_DIR 1
 
 // Delta robot radius endstop
 #define max_software_endstop_r true
@@ -1257,9 +1254,8 @@ For mode 1 the current coating thickness is added to measured z probe distances.
 That way the real bed is always the reference height. For inductive sensors
 or z min endstops the coating has no effect on the result, so you should use mode 0.
 */
-#define Z_PROBE_Z_OFFSET_MODE 0
+#define Z_PROBE_Z_OFFSET_MODE       0
 
-<<<<<<< HEAD
 #define FEATURE_Z_PROBE             false
 #define Z_PROBE_PIN                 ORIG_Z_MIN_PIN
 #define Z_PROBE_PULLUP              1
@@ -1268,15 +1264,6 @@ or z min endstops the coating has no effect on the result, so you should use mod
 #define Z_PROBE_Y_OFFSET            0
 #define Z_PROBE_BED_DISTANCE        3.0 // Higher than max bed level distance error in mm
 #define PROBE_FIRST_TRY_DISTANCE    20.0
-=======
-#define FEATURE_Z_PROBE false
-#define Z_PROBE_PIN -1  // 63
-#define Z_PROBE_PULLUP 1
-#define Z_PROBE_ON_HIGH 1
-#define Z_PROBE_X_OFFSET 0
-#define Z_PROBE_Y_OFFSET 0
-#define Z_PROBE_BED_DISTANCE 3.0 // Higher than max bed level distance error in mm
->>>>>>> parent of 82e6b50... Minor fixes + new wizards
 
 // Waits for a signal to start. Valid signals are probe hit and ok button.
 // This is needful if you have the probe trigger by hand.
@@ -1285,18 +1272,14 @@ or z min endstops the coating has no effect on the result, so you should use mod
 /* Speed of z-axis in mm/s when probing */
 #define Z_PROBE_SPEED 2
 #define Z_PROBE_XY_SPEED 150
-#define Z_PROBE_SWITCHING_DISTANCE 1.5 // Distance to safely switch off probe after it was activated
+#define Z_PROBE_SWITCHING_DISTANCE 3.0 // Distance to safely switch off probe after it was activated
 #define Z_PROBE_REPETITIONS 5 // Repetitions for probing at one point.
 
 /* The height is the difference between activated probe position and nozzle height. */
 #define Z_PROBE_HEIGHT 5.0
 
 /* These scripts are run before resp. after the z-probe is done. Add here code to activate/deactivate probe if needed. */
-<<<<<<< HEAD
 #define Z_PROBE_START_SCRIPT "T1\n"
-=======
-#define Z_PROBE_START_SCRIPT ""
->>>>>>> parent of 82e6b50... Minor fixes + new wizards
 #define Z_PROBE_FINISHED_SCRIPT ""
 
 /* Set 1 if you need a hot extruder for good probe results. Normally only required if nozzle is probe. */
@@ -1328,6 +1311,9 @@ point 1 is mirrored to 1m across the axis. Using the symmetry we then remove the
 from 1 and use that as plane.
 */
 #define BED_LEVELING_METHOD 1
+
+#define LEFT                0 //  Needed to print to the display which knob we're currently using
+#define RIGHT               1 //  ditto ^
 
 /** How to correct rotation.
 0 = software side
@@ -1501,10 +1487,10 @@ auto-repair function if this is the case. It is not supported for all display
 types. It creates a minimal flicker from time to time and also slows down
 computations, so do not enable it if your display works stable!
 */
-#define TRY_AUTOREPAIR_LCD_ERRORS
+//#define TRY_AUTOREPAIR_LCD_ERRORS
 
 // This is line 2 of the status display at startup. Change to your like.
-#define UI_PRINTER_NAME "500XL"
+#define UI_PRINTER_NAME "Itomec"
 #define UI_PRINTER_COMPANY "Roble"
 
 /* Animate switches between menus etc. */
@@ -1579,7 +1565,7 @@ Values must be in range 1..255.
 // Extreme values
 #define UI_SET_MIN_HEATED_BED_TEMP 30
 #define UI_SET_MAX_HEATED_BED_TEMP 110
-#define UI_SET_MIN_EXTRUDER_TEMP 150
+#define UI_SET_MIN_EXTRUDER_TEMP 170
 #define UI_SET_MAX_EXTRUDER_TEMP 270
 #define UI_SET_EXTRUDER_FEEDRATE 5
 #define UI_SET_EXTRUDER_RETRACT_DISTANCE 3

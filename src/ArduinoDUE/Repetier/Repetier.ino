@@ -144,12 +144,12 @@ Custom M Codes
 
 void setup()
 {
-    Printer::setup();
+  Printer::setup();
 }
 
 void loop()
 {
-    Commands::commandLoop();
+  Commands::commandLoop();
 }
 
 

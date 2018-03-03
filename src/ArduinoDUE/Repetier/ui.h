@@ -281,6 +281,9 @@
 #define UI_ACTION_WIZARD_JAM_WAITHEAT   5002
 #define UI_ACTION_WIZARD_JAM_EOF        5003
 #define UI_ACTION_WIZARD_BED_LEVEL      5004
+#define UI_ACTION_LEVEL_OFFSET          5005
+#define UI_ACTION_FILACHANGE            5006
+#define UI_ACTION_XY_OFFSET             5007
 
 // Load basic language definition to make sure all values are defined
 //#include "uilang.h"
@@ -316,7 +319,12 @@ struct UIMenu_s {
 };
 typedef const UIMenu_s UIMenu;
 
-extern const int8_t encoder_table[16] PROGMEM ;
+extern const int8_t encoder_table[16] PROGMEM;
+
+#define EXECUTE_ACTION    0
+#define FINISH_ACTION     1
+#define CLICK_ACTION      2
+#define ROTATE_ACTION     3
 
 //#ifdef COMPILE_I2C_DRIVER
 
@@ -449,6 +457,27 @@ extern const int8_t encoder_table[16] PROGMEM ;
   UIMenuEntry name ## _4 PROGMEM ={0,0,0,0,0,row4};\
   const UIMenuEntry * const name ## _entries [] PROGMEM = {&name ## _1,&name ## _2,&name ## _3,&name ## _4};\
   const UIMenu name PROGMEM = {5,action,4,name ## _entries};
+#define UI_LEVEL_OFFSET_T(name,action,row1,row2,row3,row4) \
+  UIMenuEntry name ## _1 PROGMEM ={0,0,0,0,0,row1};\
+  UIMenuEntry name ## _2 PROGMEM ={0,0,0,0,0,row2};\
+  UIMenuEntry name ## _3 PROGMEM ={0,0,0,0,0,row3};\
+  UIMenuEntry name ## _4 PROGMEM ={0,0,0,0,0,row4};\
+  const UIMenuEntry * const name ## _entries [] PROGMEM = {&name ## _1,&name ## _2,&name ## _3,&name ## _4};\
+  const UIMenu name PROGMEM = {5,action,4,name ## _entries};
+#define UI_FILACHANGE_T(name,action,row1,row2,row3,row4) \
+  UIMenuEntry name ## _1 PROGMEM ={0,0,0,0,0,row1};\
+  UIMenuEntry name ## _2 PROGMEM ={0,0,0,0,0,row2};\
+  UIMenuEntry name ## _3 PROGMEM ={0,0,0,0,0,row3};\
+  UIMenuEntry name ## _4 PROGMEM ={0,0,0,0,0,row4};\
+  const UIMenuEntry * const name ## _entries [] PROGMEM = {&name ## _1,&name ## _2,&name ## _3,&name ## _4};\
+  const UIMenu name PROGMEM = {5,action,4,name ## _entries};
+//#define UI_FILACHANGE_T(name,action,row1,row2,row3,row4) \
+//  UIMenuEntry name ## _1 PROGMEM ={0,0,0,0,0,row1};\
+//  UIMenuEntry name ## _2 PROGMEM ={0,0,0,0,0,row2};\
+//  UIMenuEntry name ## _3 PROGMEM ={0,0,0,0,0,row3};\
+//  UIMenuEntry name ## _4 PROGMEM ={0,0,0,0,0,row4};\
+//  const UIMenuEntry * const name ## _entries [] PROGMEM = {&name ## _1,&name ## _2,&name ## _3,&name ## _4};\
+//  const UIMenu name PROGMEM = {5,action,4,name ## _entries};
 #define UI_WIZARD2(name,action,row1,row2) UI_STRING(name ## _1txt,row1);UI_STRING(name ## _2txt,row2);\
   UIMenuEntry name ## _1 PROGMEM ={name ## _1txt,0,0,0,0,0};\
   UIMenuEntry name ## _2 PROGMEM ={name ## _2txt,0,0,0,0,0};\
@@ -550,6 +579,10 @@ class UIDisplay {
     int8_t oldMenuLevel;
     uint8_t encoderStartScreen;
     char printCols[MAX_COLS + 1];
+
+    float getProbeActivatedDistance();
+    void filachange(int action_, int increment_);
+    void xyoffset(int action_, int increment_);
     void addInt(int value, uint8_t digits, char fillChar = ' '); // Print int into printCols
     void addLong(long value, int8_t digits);
     inline void addLong(long value) {

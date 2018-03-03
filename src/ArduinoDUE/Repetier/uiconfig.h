@@ -175,7 +175,7 @@ Rows of your display. 2 or 4
 #define UI_DISPLAY_I2C_PULLUP 31
 /* How fast should the I2C clock go. The PCF8574 work only with the lowest setting 100000.
 A MCP23017 can run also with 400000 Hz */
-#define UI_I2C_CLOCKSPEED 100000L
+#define UI_I2C_CLOCKSPEED 10000L
 /**
 Define the pin
 */

@@ -156,7 +156,7 @@ void Commands::printCurrentPosition(FSTRINGPARAM(s)) {
 void Commands::printTemperatures(bool showRaw) {
 #if NUM_EXTRUDER > 0
     float temp = Extruder::current->tempControl.currentTemperatureC;
-#if HEATED_BED_SENSOR_TYPE == 0
+#if HEATED_BED_SENSOR_TYPE == 0   //  Not true
     Com::printF(Com::tTColon,temp);
     Com::printF(Com::tSpaceSlash,Extruder::current->tempControl.targetTemperatureC,0);
 #else
@@ -164,13 +164,13 @@ void Commands::printTemperatures(bool showRaw) {
     Com::printF(Com::tSpaceSlash,Extruder::current->tempControl.targetTemperatureC,0);
     Com::printF(Com::tSpaceBColon,Extruder::getHeatedBedTemperature());
     Com::printF(Com::tSpaceSlash,heatedBedController.targetTemperatureC,0);
-    if(showRaw) {
+    if(showRaw) {   //  Not true when M105 command is issued
         Com::printF(Com::tSpaceRaw,(int)NUM_EXTRUDER);
         Com::printF(Com::tColon,(1023 << (2 - ANALOG_REDUCE_BITS)) - heatedBedController.currentTemperature);
     }
     Com::printF(Com::tSpaceBAtColon,(pwm_pos[heatedBedController.pwmIndex])); // Show output of auto tune when tuning!
 #endif
-#if TEMP_PID
+#if TEMP_PID  //  True
     Com::printF(Com::tSpaceAtColon,(autotuneIndex == 255 ? pwm_pos[Extruder::current->id] : pwm_pos[autotuneIndex])); // Show output of auto tune when tuning!
 #endif
 #if NUM_EXTRUDER > 1
@@ -182,7 +182,7 @@ void Commands::printTemperatures(bool showRaw) {
         Com::printF(Com::tSpaceAt,(int)i);
         Com::printF(Com::tColon,(pwm_pos[extruder[i].tempControl.pwmIndex])); // Show output of autotune when tuning!
 #endif
-        if(showRaw) {
+        if(showRaw) { //  Not true if M105 command is issued
             Com::printF(Com::tSpaceRaw,(int)i);
             Com::printF(Com::tColon,(1023 << (2 - ANALOG_REDUCE_BITS)) - extruder[i].tempControl.currentTemperature);
         }
@@ -972,15 +972,23 @@ void Commands::processMCode(GCode *com) {
             sd.pausePrint();
             break;
         case 26: //M26 - Set SD index
-            if(com->hasS())
-            {
-                sd.setIndex(com->S);
-            }
-            else
-            {
-              Serial.println("Going back to come back point.");
-              sd.setIndex(sd.sdpos_saved);
-            }
+			if(sd.sdmode != 1)
+			{
+			  Com::printFLN(PSTR("Impossible to create a comeback point when sd card is not active."));
+			}
+			else
+			{
+				if(com->hasS())
+				{
+				  Com::printFLN(PSTR("Setting comeback point."));
+				  sd.setIndex(com->S);
+				}
+				else
+				{
+				  Com::printFLN(PSTR("Going back to comeback point."));
+				  sd.setIndex(sd.sdpos_saved);
+				}
+	        }
             break;
         case 27: //M27 - Get SD status
             sd.printStatus();
@@ -1439,6 +1447,16 @@ void Commands::processMCode(GCode *com) {
 #endif
             break;
 #if defined(BEEPER_PIN) && BEEPER_PIN>=0
+        case 290: //  Babystep
+            if(com->hasZ())
+            {
+              if(abs(com->Z) < (32700 - labs(Printer::zBabystepsMissing)) * Printer::axisStepsPerMM[Z_AXIS])
+              {
+                Printer::zBabystepsMissing += com->Z * Printer::axisStepsPerMM[Z_AXIS];
+                Printer::babysteps += com->Z * Printer::axisStepsPerMM[Z_AXIS];
+              }
+            }
+            break;
         case 300: { // M300
                 int beepS = 1;
                 int beepP = 1000;
